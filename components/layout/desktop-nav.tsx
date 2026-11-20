@@ -99,7 +99,7 @@ export function DesktopNav({ tours, destinations }: DesktopNavProps) {
               <div className="relative h-[280px] w-full overflow-hidden">
                 {destinations[0] && (
                   <>
-                    <Image src={destinations[0].image_url} alt={destinations[0].name} fill className="object-cover" />
+                    <Image src={destinations[0].image_url} alt={destinations[0].name} fill sizes="220px" className="object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
                     <div className="absolute bottom-0 left-0 p-5 text-white">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-[#F67A05]">Start Here</span>
@@ -135,7 +135,7 @@ export function DesktopNav({ tours, destinations }: DesktopNavProps) {
               <div>
                 <h4 className="mb-4 text-[11px] font-bold uppercase tracking-wider text-gray-400">Tanzania Safaris</h4>
                 <p className="mb-6 text-sm text-gray-600 leading-relaxed">
-                  Private, tailor-made and small-group safaris across Tanzania's Northern Circuit.
+                  Private, tailor-made and small-group safaris across Tanzania&apos;s Northern Circuit.
                 </p>
                 <Link href="/tours" className="group/link flex items-center gap-2 text-sm font-bold text-[#11110F] hover:text-[#F67A05]">
                   BROWSE ALL SAFARIS
@@ -181,7 +181,7 @@ export function DesktopNav({ tours, destinations }: DesktopNavProps) {
               <div className="relative h-[300px] w-full overflow-hidden bg-gray-100">
                 {tours[0] && (
                   <>
-                    <Image src={tours[0].featured_image} alt={tours[0].name} fill className="object-cover" />
+                    <Image src={tours[0].featured_image} alt={tours[0].name} fill sizes="220px" className="object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
                     <div className="absolute bottom-0 left-0 p-5 text-white">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-[#F67A05]">Featured Journey</span>

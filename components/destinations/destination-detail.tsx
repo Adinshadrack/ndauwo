@@ -39,13 +39,14 @@ export function DestinationDetail({
   return (
     <main className="bg-canvas">
       <PhotoHero
+        align="center"
         title={destination.name}
         backdropImage={destination.image_url || undefined}
-        eyebrow={destination.region || undefined}
+        eyebrow={destination.region || "Destination"}
         breadcrumb={
           <nav
             aria-label="Breadcrumb"
-            className="flex items-center gap-2 text-[0.6875rem] font-semibold uppercase tracking-[0.16em] text-white/55"
+            className="flex items-center gap-2 text-[0.6875rem] font-bold uppercase tracking-[0.16em] text-white/55"
           >
             <Link
               href="/destinations"
@@ -65,14 +66,12 @@ export function DestinationDetail({
             </span>
           </nav>
         }
-        ledger={
+        meta={[
           programmeCount > 0
-            ? {
-                value: programmeCount,
-                label: programmeCount === 1 ? "safari" : "safaris",
-              }
-            : undefined
-        }
+            ? `${programmeCount} ${programmeCount === 1 ? "safari" : "safaris"}`
+            : "Safaris on request",
+          "Trips start in Arusha",
+        ]}
       />
 
       {/* The long copy, with the facts it implies kept beside it. */}

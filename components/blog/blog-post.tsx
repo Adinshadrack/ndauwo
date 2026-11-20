@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 
 import { Link } from "@/i18n/navigation";
@@ -11,6 +10,7 @@ import {
 import { Reveal } from "@/components/motion/reveal";
 import { CtaLink } from "@/components/ui/cta";
 import { ImageCta } from "@/components/ui/image-cta";
+import { PhotoHero } from "@/components/ui/photo-hero";
 import type { BlogPost } from "@/types/api";
 
 /** Words per minute used by most long-form desks. */
@@ -87,9 +87,9 @@ interface BlogPostPageProps {
 }
 
 /**
- * A single journal story. The masthead is a forest band and the lead
- * photograph is a rounded plate that overlaps its foot, so the story opens the
- * way the journal front page does without printing the photograph twice.
+ * A single journal story. It opens the way the journal front page does: the
+ * story's own photograph held behind centred copy, with the byline and read
+ * time in the meta rule. The body follows on the canvas.
  */
 export function BlogPostPage({
   post,
@@ -135,83 +135,28 @@ export function BlogPostPage({
     <main className="bg-canvas">
       <ReadingProgress />
 
-      {/* Masthead */}
-      <section className="relative isolate overflow-hidden bg-forest-900 text-white">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 h-[340px] bg-[radial-gradient(75%_120%_at_18%_0%,rgba(246,122,5,0.16),transparent_70%)]"
-        />
+      <PhotoHero
+        align="center"
+        title={post.title}
+        description={post.excerpt || undefined}
+        backdropImage={post.featured_image || undefined}
+        eyebrow={post.category || "Safari Journal"}
+        breadcrumb={
+          <Link
+            href="/blog"
+            className="group inline-flex items-center gap-2.5 text-[0.6875rem] font-bold uppercase tracking-[0.16em] text-white/55 transition-colors hover:text-white"
+          >
+            <ArrowLeft
+              className="h-3 w-3 transition-transform duration-300 group-hover:-translate-x-1"
+              strokeWidth={2.2}
+              aria-hidden="true"
+            />
+            Safari Journal
+          </Link>
+        }
+        meta={meta}
+      />
 
-        <div className="container-page relative z-10 pb-28 pt-12 sm:pt-14 lg:pb-36 lg:pt-16">
-          <div className="animate-fade">
-            <Link
-              href="/blog"
-              className="type-meta group inline-flex items-center gap-2.5 uppercase text-white/45 transition-colors hover:text-white"
-            >
-              <ArrowLeft
-                className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-x-1"
-                strokeWidth={2.2}
-                aria-hidden="true"
-              />
-              Safari Journal
-            </Link>
-          </div>
-
-          <div className="mt-9 max-w-4xl lg:mt-12">
-            {post.category && (
-              <p className="type-eyebrow animate-rise text-gold">
-                {post.category}
-              </p>
-            )}
-
-            <h1 className="type-display-xl animate-rise mt-4 text-white [animation-delay:80ms]">
-              {post.title}
-            </h1>
-
-            {post.excerpt && (
-              <p className="type-body animate-rise mt-6 max-w-[58ch] text-white/65 [animation-delay:160ms]">
-                {post.excerpt}
-              </p>
-            )}
-
-            {meta.length > 0 && (
-              <div className="animate-fade mt-9 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-white/15 pt-5 [animation-delay:260ms]">
-                {meta.map((item, index) => (
-                  <span key={item} className="flex items-center gap-x-5">
-                    {index > 0 && (
-                      <span aria-hidden="true" className="h-3 w-px bg-white/20" />
-                    )}
-
-                    <span className="type-meta uppercase text-white/45">
-                      {item}
-                    </span>
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Lead photograph, half a card over the masthead's foot */}
-      {post.featured_image && (
-        <div className="container-page relative z-10 -mt-20 sm:-mt-24 lg:-mt-28">
-          <Reveal y={16} duration={0.7}>
-            <figure className="image-zoom overflow-hidden rounded-[20px] bg-sand shadow-card">
-              <div className="relative aspect-[4/3] sm:aspect-[16/10] lg:aspect-[21/9]">
-                <Image
-                  src={post.featured_image}
-                  alt={post.title}
-                  fill
-                  priority
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 1320px"
-                  className="object-cover object-center"
-                />
-              </div>
-            </figure>
-          </Reveal>
-        </div>
-      )}
 
       {/* Story body and the rail that carries the next step */}
       <section className="bg-canvas pb-16 pt-12 lg:pb-20 lg:pt-16">

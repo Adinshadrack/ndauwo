@@ -1,9 +1,10 @@
 import { Reveal } from "@/components/motion/reveal";
 import { CtaLink } from "@/components/ui/cta";
 import { FaqAccordion } from "@/components/ui/faq-accordion";
-import { PageHero } from "@/components/ui/page-hero";
-import { SectionCta } from "@/components/ui/section-cta";
+import { ImageCta } from "@/components/ui/image-cta";
+import { PhotoHero } from "@/components/ui/photo-hero";
 import { getFAQs } from "@/lib/api/faqs";
+import { getSiteSettings } from "@/lib/api/settings";
 
 export const metadata = {
   title: "Frequently Asked Questions",
@@ -12,41 +13,47 @@ export const metadata = {
 };
 
 export default async function FAQPage() {
-  const faqs = await getFAQs();
+  const [faqs, settings] = await Promise.all([getFAQs(), getSiteSettings()]);
 
   return (
     <main className="bg-canvas">
-      <PageHero
+      <PhotoHero
+        align="center"
         eyebrow="Need to know"
-        title={
-          <>
-            Frequently asked
-            <br />
-            <span className="italic text-ember">questions.</span>
-          </>
-        }
-        description="Helpful answers to common questions as you plan your Tanzania safari."
-        video
+        title="Frequently asked questions"
+        description="Answers to what travellers ask before they book a safari with us, from deposits and dates to what a day on the road looks like."
+        backdropImage={settings.hero_image_url || undefined}
+        meta={[
+          faqs.length
+            ? `${faqs.length} ${faqs.length === 1 ? "answer" : "answers"}`
+            : "Answers on request",
+          "Replies in writing",
+        ]}
       />
 
       <section className="bg-canvas section-pad">
         <div className="container-page">
-          <div className="grid gap-12 lg:grid-cols-[1fr_1.5fr] lg:gap-20">
-            <Reveal className="flex flex-col justify-between lg:sticky lg:top-32 lg:h-[60vh]">
-              <h2 className="type-script text-ink">
-                Frequently Asked <br />
-                Questions
-              </h2>
+          <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_1.5fr] lg:gap-16 xl:gap-20">
+            <Reveal className="lg:sticky lg:top-[132px] lg:self-start">
+              <div className="surface-card px-6 py-6">
+                <p className="type-eyebrow text-gold">Not answered here</p>
 
-              <div className="mt-12 lg:mt-0">
-                <h3 className="font-[family-name:var(--font-primary)] text-lg font-bold text-ink">
-                  Still have a question?
-                </h3>
-                <p className="type-body-sm mt-2 max-w-xs text-ink/60">
-                  Message us and we will reply as quickly as possible.
+                <h2 className="type-section-title mt-3 text-ink">
+                  Ask the team directly.
+                </h2>
+
+                <p className="type-body-sm mt-3 text-ink-muted">
+                  Message us the dates you have in mind and the parks you want to
+                  see. The planner who would run the safari replies, usually the
+                  same day.
                 </p>
-                <CtaLink href="/contact" className="mt-6">
-                  Contact Us
+
+                <CtaLink
+                  href="/contact"
+                  size="md"
+                  className="mt-5 w-full justify-center"
+                >
+                  Send a question
                 </CtaLink>
               </div>
             </Reveal>
@@ -55,14 +62,14 @@ export default async function FAQPage() {
               {faqs.length ? (
                 <FaqAccordion faqs={faqs} />
               ) : (
-                <div className="rounded-xl bg-sand-muted px-6 py-14 text-center">
+                <div className="surface-card px-6 py-14 text-center">
                   <p className="type-eyebrow text-gold">Questions</p>
 
                   <h3 className="type-display mt-4 text-ink">
                     No questions published yet
                   </h3>
 
-                  <p className="type-body-sm mx-auto mt-4 max-w-md text-ink/65">
+                  <p className="type-body-sm mx-auto mt-4 max-w-md text-ink-muted">
                     Ask us anything in the meantime and we will answer directly.
                   </p>
                 </div>
@@ -72,12 +79,15 @@ export default async function FAQPage() {
         </div>
       </section>
 
-      <SectionCta
-        tone="sand"
-        eyebrow="Still wondering?"
-        title="Every safari is different."
-        description="If you can't find the answer you're looking for, speak with the Ndauwo Safaris team. We're happy to help you plan the details."
-        primary={{ label: "Ask us directly", href: "/contact" }}
+      <ImageCta
+        imageUrl={settings.hero_image_url || undefined}
+        eyebrow="Next step"
+        title="Put the question to a planner."
+        description="Deposits, group sizes, lodges, the driving days — ask before you book anything. Nothing is paid online, so a conversation costs you nothing."
+        href="/contact"
+        ctaLabel="Ask us directly"
+        secondary={{ label: "Browse safaris", href: "/tours" }}
+        phone={settings.phone || undefined}
       />
     </main>
   );

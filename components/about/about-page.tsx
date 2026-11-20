@@ -2,13 +2,15 @@ import Image from "next/image";
 import { Check, Compass, Heart, Leaf, ShieldCheck } from "lucide-react";
 
 import { Reveal } from "@/components/motion/reveal";
-import { PageHero } from "@/components/ui/page-hero";
-import { SectionCta } from "@/components/ui/section-cta";
+import { ImageCta } from "@/components/ui/image-cta";
+import { PhotoHero } from "@/components/ui/photo-hero";
 import type { SiteSettings, Testimonial } from "@/types/api";
 
 interface AboutPageProps {
   settings: SiteSettings;
   testimonials: Testimonial[];
+  /** Hero frame, kept different from the story photograph below it. */
+  backdropImage?: string;
 }
 
 const values = [
@@ -60,28 +62,36 @@ const reasons = [
   },
 ];
 
-export function AboutPage({ settings, testimonials }: AboutPageProps) {
+export function AboutPage({
+  settings,
+  testimonials,
+  backdropImage,
+}: AboutPageProps) {
   const image =
     settings.hero_image_url ||
     "https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=1800&q=85";
 
   return (
     <main className="bg-canvas">
-      <PageHero
+      <PhotoHero
+        align="center"
         eyebrow="About Ndauwo Safaris"
         title={
           <>
-            We don&apos;t just take you
-            <br />
-            to Africa.
-            <br />
-            <span className="italic text-ember">
+            We don&apos;t just take you to Africa.{" "}
+            <span className="mt-2 block italic text-ember">
               We help you experience it.
             </span>
           </>
         }
-        description="Discover the story, values and people behind Ndauwo Safaris."
-        video
+        description="The story, the values and the people who plan, drive and guide every Ndauwo safari."
+        backdropImage={backdropImage ?? image}
+        meta={[
+          ...(testimonials.length
+            ? [`${testimonials.length} guest reviews`]
+            : []),
+          "Arusha-based team",
+        ]}
       />
 
       {/* Our story */}
@@ -308,11 +318,15 @@ export function AboutPage({ settings, testimonials }: AboutPageProps) {
         </section>
       )}
 
-      <SectionCta
+      <ImageCta
+        imageUrl={image}
         eyebrow="Start your story"
         title="Let's create your Tanzania story."
         description="Tell us what kind of adventure you're imagining and we'll help you take the first step."
-        primary={{ label: "Start planning", href: "/contact" }}
+        href="/contact"
+        ctaLabel="Start planning"
+        secondary={{ label: "Browse safaris", href: "/tours" }}
+        phone={settings.phone || undefined}
       />
     </main>
   );

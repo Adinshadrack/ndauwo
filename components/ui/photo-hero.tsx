@@ -11,7 +11,8 @@ export interface PhotoHeroLedger {
 }
 
 interface PhotoHeroProps {
-  title: string;
+  /** Plain string, or a span when the name carries an accent phrase. */
+  title: ReactNode;
   /** One sentence under the title; the intro below carries the long copy. */
   description?: ReactNode;
   /** Trail printed above the eyebrow, for detail pages. */
@@ -20,7 +21,7 @@ interface PhotoHeroProps {
   backdropImage?: string;
   /** Small uppercase line printed above the title. */
   eyebrow?: string;
-  /** Left for collection fronts, centred for the archive. */
+  /** Centred is the house opening; left survives only for legacy spots. */
   align?: "left" | "center";
   /** Record count as a gold numeral beside the script label. */
   ledger?: PhotoHeroLedger;
@@ -32,10 +33,12 @@ interface PhotoHeroProps {
 }
 
 /**
- * The photographic opening shared by the pages that are about photographs:
- * the gallery archive, the destination collection and the journal. The
- * `main` element already clears the fixed header, so no top offset is repeated
- * here — the image starts at the header's edge and the copy sits on it.
+ * The photographic opening used by every page that is about photographs — the
+ * collection fronts and the detail pages alike. Copy is centred over a
+ * photograph from the record itself: a breadcrumb trail when the page sits
+ * inside a collection, an eyebrow, the name, one sentence and a hairline meta
+ * rule. The `main` element already clears the fixed header, so no top offset is
+ * repeated here — the image starts at the header's edge and the copy sits on it.
  */
 export function PhotoHero({
   title,
@@ -110,7 +113,7 @@ export function PhotoHero({
           centered && "items-center",
         )}
       >
-        <div className={cn("w-full", centered && "max-w-2xl text-center")}>
+        <div className={cn("w-full", centered && "max-w-4xl text-center")}>
           <div
             className={cn(
               ledger &&
@@ -120,7 +123,14 @@ export function PhotoHero({
           >
             <div>
               {breadcrumb && (
-                <div className="animate-fade mb-6">{breadcrumb}</div>
+                <div
+                  className={cn(
+                    "animate-fade mb-6",
+                    centered && "flex justify-center",
+                  )}
+                >
+                  {breadcrumb}
+                </div>
               )}
 
               {eyebrow && (

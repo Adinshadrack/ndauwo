@@ -168,7 +168,12 @@ export default async function TourDetailsPage({
       )}
 
       <Reveal>
-        <TourScope included={tour.included} excluded={tour.excluded} />
+        <TourScope
+          included={tour.included}
+          excluded={tour.excluded}
+          photo={tour.featured_image || undefined}
+          asidePhoto={settings.hero_image_url || undefined}
+        />
       </Reveal>
 
       <Reveal>

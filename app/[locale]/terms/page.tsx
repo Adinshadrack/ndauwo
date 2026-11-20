@@ -5,14 +5,17 @@ import {
   LegalDocument,
   type LegalSection,
 } from "@/components/legal/legal-document";
-import { PageHero } from "@/components/ui/page-hero";
-import { SectionCta } from "@/components/ui/section-cta";
+import { ImageCta } from "@/components/ui/image-cta";
+import { PhotoHero } from "@/components/ui/photo-hero";
+import { getSiteSettings } from "@/lib/api/settings";
 
 export const metadata: Metadata = {
   title: "Terms & Conditions",
   description:
     "Read the terms and conditions governing safari inquiries, bookings, payments, cancellations, and travel with Ndauwo Safaris.",
 };
+
+const LAST_UPDATED = "October 2026";
 
 const termsSections: readonly LegalSection[] = [
   {
@@ -108,23 +111,26 @@ const termsSections: readonly LegalSection[] = [
   },
 ] as const;
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  const settings = await getSiteSettings();
+
   return (
     <main className="bg-canvas">
-      <PageHero
+      <PhotoHero
+        align="center"
         eyebrow="Legal"
-        title={
-          <>
-            Terms &<br />
-            <span className="italic text-ember">conditions.</span>
-          </>
-        }
-        description="Important information about inquiries, bookings, payments, cancellations and travelling with Ndauwo Safaris."
+        title="Terms & conditions"
+        description="What applies to an inquiry, a confirmed booking, a payment and a cancellation, in the words you can hold us to."
+        backdropImage={settings.hero_image_url || undefined}
+        meta={[
+          `${termsSections.length} sections`,
+          `Last updated ${LAST_UPDATED}`,
+        ]}
       />
 
       <LegalDocument
         sections={termsSections}
-        updated="October 2026"
+        updated={LAST_UPDATED}
         crossLink={{ label: "Privacy policy", href: "/privacy" }}
         aside={
           <LegalAsideCard
@@ -138,12 +144,15 @@ export default function TermsPage() {
         }
       />
 
-      <SectionCta
+      <ImageCta
+        imageUrl={settings.hero_image_url || undefined}
         eyebrow="Before you confirm"
-        title="A conversation clears the terms faster."
-        description="Ask about deposits, dates and cancellations before anything is paid. The planner who would run your safari answers the question."
-        primary={{ label: "Talk to the team", href: "/contact" }}
+        title="Ask about the terms before anything is paid."
+        description="Deposits, date changes, cancellations — put the question to the planner who would run your safari and keep the answer in writing."
+        href="/contact"
+        ctaLabel="Talk to the team"
         secondary={{ label: "Read the privacy policy", href: "/privacy" }}
+        phone={settings.phone || undefined}
       />
     </main>
   );

@@ -45,7 +45,7 @@ const formatDate = (dateString?: string | null) => {
       month: "long",
       year: "numeric",
     }).replace(/(\d+)(st|nd|rd|th)?/, "$1th");
-  } catch (e) {
+  } catch {
     return "Recently";
   }
 };
@@ -79,11 +79,12 @@ export function TestimonialModal({ testimonial, onClose }: TestimonialModalProps
             <div className="flex max-h-[85vh] flex-col items-center overflow-y-auto px-6 py-10 sm:px-10">
               <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full border-4 border-white shadow-md">
                 {testimonial.avatar_url ? (
-                  <Image 
-                    src={testimonial.avatar_url} 
-                    alt={testimonial.name} 
-                    fill 
-                    className="object-cover" 
+                  <Image
+                    src={testimonial.avatar_url}
+                    alt={testimonial.name}
+                    fill
+                    sizes="96px"
+                    className="object-cover"
                     unoptimized
                   />
                 ) : (
@@ -116,7 +117,7 @@ export function TestimonialModal({ testimonial, onClose }: TestimonialModalProps
               </div>
 
               <p className="mt-6 text-center font-[family-name:var(--font-primary)] text-base font-semibold leading-[1.7] text-[#292824]">
-                "{testimonial.content}"
+                &ldquo;{testimonial.content}&rdquo;
               </p>
 
               <div className="mt-8">

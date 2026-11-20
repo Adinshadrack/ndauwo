@@ -5,8 +5,8 @@ import {
   LegalDocument,
   type LegalSection,
 } from "@/components/legal/legal-document";
-import { PageHero } from "@/components/ui/page-hero";
-import { SectionCta } from "@/components/ui/section-cta";
+import { ImageCta } from "@/components/ui/image-cta";
+import { PhotoHero } from "@/components/ui/photo-hero";
 import { getSiteSettings } from "@/lib/api/settings";
 
 export const metadata: Metadata = {
@@ -78,16 +78,16 @@ export default async function PrivacyPage() {
 
   return (
     <main className="bg-canvas">
-      <PageHero
+      <PhotoHero
+        align="center"
         eyebrow="Privacy"
-        title={
-          <>
-            Privacy
-            <br />
-            <span className="italic text-ember">policy.</span>
-          </>
-        }
-        description="What we collect when you subscribe to our newsletter or send an enquiry, why we collect it, and how to ask us to remove it."
+        title="Privacy policy"
+        description="What we collect when you subscribe to the newsletter or send an enquiry, why we hold it, and how to have it removed."
+        backdropImage={settings.hero_image_url || undefined}
+        meta={[
+          `${privacySections.length} sections`,
+          "No data sold or traded",
+        ]}
       />
 
       <LegalDocument
@@ -117,12 +117,15 @@ export default async function PrivacyPage() {
         }
       />
 
-      <SectionCta
+      <ImageCta
+        imageUrl={settings.hero_image_url || undefined}
         eyebrow="Your details"
         title="One email is enough to change or remove them."
         description="We confirm what is on file, action the request, and tell you when it is done. Leaving the newsletter does not touch an enquiry you already have with us."
-        primary={{ label: "Contact us", href: "/contact" }}
+        href="/contact"
+        ctaLabel="Contact us"
         secondary={{ label: "Read the terms", href: "/terms" }}
+        phone={settings.phone || undefined}
       />
     </main>
   );
