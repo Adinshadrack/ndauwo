@@ -2,7 +2,10 @@ interface HeroVideoProps {
   poster?: string;
 }
 
-export function HeroVideo({ poster }: HeroVideoProps) {
+/** First frame of the hero clip, so the band never flashes empty. */
+const DEFAULT_POSTER = "/videos/ndauwo-hero-poster.jpg";
+
+export function HeroVideo({ poster = DEFAULT_POSTER }: HeroVideoProps) {
   return (
     <div
       aria-hidden="true"

@@ -1,118 +1,198 @@
-
 import Image from "next/image";
-import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowRight, Clock } from "lucide-react";
 
+import { Link } from "@/i18n/navigation";
+import { Pill } from "@/components/ui/pill";
+import { formatAmount, tourDuration } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import type { Tour } from "@/types/tour";
 
-type TourCardProps = {
+type TourCardVariant = "showcase" | "minimal";
+
+interface TourCardProps {
   tour: Tour;
-};
-
-function formatDuration(tour: Tour) {
-  if (tour.duration_days && tour.duration_nights) {
-    return `${tour.duration_days} Days / ${tour.duration_nights} Nights`;
-  }
-
-  if (tour.duration_days) {
-    return `${tour.duration_days} Days`;
-  }
-
-  if (tour.duration_nights) {
-    return `${tour.duration_nights} Nights`;
-  }
-
-  return "Flexible duration";
+  /**
+   * "showcase" carries the destination, a short summary and an action disc for
+   * the homepage and related tours; "minimal" is the listing card — photo,
+   * name, duration and price only.
+   */
+  variant?: TourCardVariant;
 }
 
-function formatPrice(tour: Tour) {
-  if (!tour.price) {
-    return "Request price";
-  }
+function discountInfo(tour: Tour) {
+  const original = Number(tour.original_price);
+  const current = Number(tour.price);
 
-  return `${tour.currency} ${Number(tour.price).toLocaleString()}`;
+  if (!Number.isFinite(original) || original <= 0) return null;
+
+  // Price-derived saving wins, so the badge always agrees with the struck price.
+  const computedPercentage =
+    Number.isFinite(current) && current > 0 && current < original
+      ? Math.round(((original - current) / original) * 100)
+      : null;
+
+  const storedPercentage =
+    tour.discount_percentage && tour.discount_percentage > 0
+      ? tour.discount_percentage
+      : null;
+
+  const percentage = computedPercentage ?? storedPercentage;
+
+  return percentage
+    ? { original, percentage, discounted: Math.round(original * (1 - percentage / 100)) }
+    : null;
 }
 
-export function TourCard({ tour }: TourCardProps) {
-  const duration = formatDuration(tour);
-  const price = formatPrice(tour);
+function durationLabel(tour: Tour) {
+  const { days, nights } = tourDuration(tour);
+
+  if (!days) return null;
+
+  return `${days} ${days === 1 ? "Day" : "Days"} / ${nights} ${
+    nights === 1 ? "Night" : "Nights"
+  }`;
+}
+
+/** Where the safari goes, falling back to its category and then the country. */
+function tourEyebrow(tour: Tour) {
+  return tour.destination?.name?.trim() || tour.category?.trim() || "Tanzania";
+}
+
+export function TourCard({ tour, variant = "showcase" }: TourCardProps) {
+  const discount = discountInfo(tour);
+  const duration = durationLabel(tour);
+  const price = tour.price
+    ? formatAmount(tour.currency, tour.price)
+    : "Price on request";
 
   return (
-    <article className="group">
-      <Link href={`/tours/${tour.slug}`} className="block">
-        <div className="image-zoom relative aspect-[4/3] overflow-hidden bg-[#EDE1CF]">
-          {tour.featured_image?.trim() ? (
-            <Image
-              src={tour.featured_image}
-              alt={tour.name}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              className="object-cover"
-            />
+    <Link
+      href={`/tours/${tour.slug}`}
+      className={cn(
+        "group flex h-full flex-col overflow-hidden rounded-[20px] border border-ink/8 bg-white",
+        "shadow-card transition-transform duration-300 hover:-translate-y-1",
+      )}
+    >
+      <div
+        className={cn(
+          "relative shrink-0 overflow-hidden bg-sand",
+          variant === "showcase" ? "aspect-[3/2]" : "aspect-[4/3]",
+        )}
+      >
+        {tour.featured_image ? (
+          <Image
+            src={tour.featured_image}
+            alt={tour.name}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+          />
+        ) : (
+          <div aria-hidden="true" className="absolute inset-0 bg-forest/40" />
+        )}
+
+        {variant === "showcase" && (
+          <div
+            aria-hidden="true"
+            className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/45 to-transparent"
+          />
+        )}
+
+        <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-2">
+          {variant === "showcase" && duration ? (
+            <Pill tone="glass">
+              <Clock className="h-3 w-3" strokeWidth={2} aria-hidden="true" />
+              {duration}
+            </Pill>
           ) : (
-            <div
-              aria-hidden="true"
-              className="absolute inset-0 bg-gradient-to-br from-[#8A5A3C] to-[#EDE1CF]"
-            />
+            <span />
           )}
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/5 to-transparent" />
-
-          <span className="absolute left-4 top-4 text-[9px] font-medium tracking-[0.16em] text-white/75">
-            Safari
-          </span>
-
-          {tour.category && (
-            <span className="absolute bottom-4 left-4 text-[9px] font-medium uppercase tracking-[0.18em] text-white">
-              {tour.category}
+          {discount && (
+            <span className="rounded-full bg-clay px-2.5 py-1 text-[9.5px] font-extrabold uppercase leading-none tracking-[0.08em] text-white">
+              {discount.percentage}% off
             </span>
           )}
-
-          <span className="absolute bottom-4 right-4 text-[9px] font-medium uppercase tracking-[0.14em] text-white/75">
-            {duration}
-          </span>
         </div>
+      </div>
 
-        <div className="border-b border-black/10 pb-6 pt-5">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[9px] font-medium uppercase tracking-[0.14em] text-black/40">
-            {tour.destination && <span>{tour.destination.name}</span>}
-            <span>{duration}</span>
-          </div>
+      <div className="flex flex-1 flex-col px-5 pb-5 pt-4">
+        {variant === "showcase" && (
+          <p className="type-badge text-ember">{tourEyebrow(tour)}</p>
+        )}
 
-          <div className="mt-3 flex items-start justify-between gap-5">
-            <div>
-              <h2 className="font-display text-[1.8rem] leading-none tracking-[-0.025em] text-[#11110F] transition-colors duration-300 group-hover:text-[#8A5A3C] sm:text-[2rem]">
-                {tour.name}
-              </h2>
+        <h2
+          className={cn(
+            "line-clamp-2 font-extrabold tracking-[-0.025em] text-ink",
+            variant === "showcase"
+              ? "mt-2 text-[1.15rem] leading-[1.25]"
+              : "text-[1.0625rem] leading-snug",
+          )}
+        >
+          {tour.name}
+        </h2>
 
-              {tour.short_description && (
-                <p className="mt-3 max-w-md text-[13px] leading-6 text-black/55">
-                  {tour.short_description}
+        {variant === "minimal" && duration && (
+          <p className="mt-2 flex items-center gap-1.5 text-[0.75rem] text-ink-muted">
+            <Clock className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
+            {duration}
+          </p>
+        )}
+
+        {variant === "showcase" && tour.short_description?.trim() && (
+          <p className="mt-2 line-clamp-2 text-[0.78125rem] leading-[1.6] text-ink-muted">
+            {tour.short_description}
+          </p>
+        )}
+
+        <div className="mt-auto pt-5">
+          <div
+            className={cn(
+              "flex items-end justify-between gap-3",
+              variant === "showcase" && "border-t border-ink/10 pt-4",
+            )}
+          >
+            <div className="min-w-0">
+              {discount && (
+                <p className="font-tour text-[10.5px] font-semibold leading-none text-ink-soft line-through">
+                  {formatAmount(tour.currency, discount.original)}
                 </p>
               )}
+
+              <p
+                className={cn(
+                  "type-price text-ink",
+                  variant === "showcase"
+                    ? "mt-1 text-[1.25rem]"
+                    : "text-[1.1rem]",
+                )}
+              >
+                {price}
+              </p>
+
+              <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-ink-soft">
+                per person
+              </p>
             </div>
 
-            <span className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center border border-black/15 text-black/45 transition-all duration-300 group-hover:border-[#F67A05] group-hover:bg-[#F67A05] group-hover:text-white">
-              <ArrowUpRight
+            {variant === "showcase" ? (
+              <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-forest-900 text-white transition-colors duration-300 group-hover:bg-ember">
+                <ArrowRight
+                  className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5"
+                  strokeWidth={2.2}
+                  aria-hidden="true"
+                />
+              </span>
+            ) : (
+              <ArrowRight
+                className="mb-1 h-4 w-4 flex-none text-ink-soft transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-ember"
+                strokeWidth={2}
                 aria-hidden="true"
-                className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                strokeWidth={1.25}
               />
-            </span>
-          </div>
-
-          <div className="mt-5 flex items-baseline gap-2 border-t border-black/10 pt-4">
-            <span className="text-[9px] font-medium uppercase tracking-[0.15em] text-black/35">
-              From
-            </span>
-
-            <span className="text-[13px] font-medium text-[#11110F]">
-              {price}
-            </span>
+            )}
           </div>
         </div>
-      </Link>
-    </article>
+      </div>
+    </Link>
   );
 }
-

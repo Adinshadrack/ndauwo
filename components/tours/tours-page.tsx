@@ -1,20 +1,35 @@
-
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
-import { ArrowUpRight, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
-import type { Tour } from "@/types/tour";
+import { Reveal } from "@/components/motion/reveal";
 import { TourCard } from "@/components/tours/tour-card";
-import { HeroVideo } from "@/components/media/hero-video";
+import { ImageCta } from "@/components/ui/image-cta";
+import { PhotoHero } from "@/components/ui/photo-hero";
+import type { Tour } from "@/types/tour";
 
-type ToursPageProps = {
+interface ToursPageProps {
   tours: Tour[];
-};
+  initialCategory?: string;
+  /** A safari photograph, held behind the opening copy. */
+  heroImage?: string;
+  /** Site hero photography, used behind the closing band. */
+  ctaImage?: string;
+  phone?: string;
+}
 
-export function ToursPage({ tours }: ToursPageProps) {
-  const [category, setCategory] = useState("All");
+const selectClassName =
+  "h-11 w-full appearance-none rounded-lg border border-ink/12 bg-white pl-4 pr-10 text-[0.8125rem] font-semibold text-ink outline-none transition-colors focus:border-ember sm:w-auto sm:min-w-[190px]";
+
+export function ToursPage({
+  tours,
+  initialCategory,
+  heroImage,
+  ctaImage,
+  phone,
+}: ToursPageProps) {
+  const [category, setCategory] = useState(initialCategory ?? "All");
   const [destination, setDestination] = useState("All");
 
   const categories = useMemo(() => {
@@ -37,8 +52,7 @@ export function ToursPage({ tours }: ToursPageProps) {
         category === "All" || tour.category === category;
 
       const matchesDestination =
-        destination === "All" ||
-        tour.destination?.name === destination;
+        destination === "All" || tour.destination?.name === destination;
 
       return matchesCategory && matchesDestination;
     });
@@ -51,271 +65,134 @@ export function ToursPage({ tours }: ToursPageProps) {
     setDestination("All");
   };
 
+  const heroMeta = [
+    `${tours.length} ${tours.length === 1 ? "programme" : "programmes"}`,
+    `${destinations.length - 1} ${
+      destinations.length === 2 ? "destination" : "destinations"
+    }`,
+  ];
+
   return (
-    <main className="bg-[#FCFAF4]">
-      {/* HERO */}
-      <section className="relative min-h-[72svh] overflow-hidden bg-[#11110F] text-white">
-        <HeroVideo />
+    <main className="bg-canvas">
+      {/*
+        Every collection front opens the same way: a centred photograph of the
+        collection, the count kept in the foot rule. The filter bar is the one
+        card sitting on it, cut from the same cloth as the safaris below.
+      */}
+      <PhotoHero
+        title="Safaris"
+        description="Tanzania's parks, from the Serengeti plains to the Ngorongoro highlands, arranged as programmes you can compare at a glance."
+        backdropImage={heroImage}
+        eyebrow="Safari collection"
+        align="center"
+        meta={tours.length ? heroMeta : undefined}
+        // The filter card overlaps this edge, so the foot opens up for it.
+        className="pb-20 lg:pb-24"
+      />
 
-        <div className="relative z-10 mx-auto flex min-h-[72svh] max-w-[1400px] items-end px-5 pb-12 pt-32 sm:px-8 sm:pb-16 lg:px-10 lg:pb-20">
-          <div className="w-full">
-            <div className="mb-7 flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.22em] text-white/65">
-              <span className="h-px w-7 bg-[#F67A05]" />
-              Safari collection
-            </div>
+      <div className="container-page relative z-10 -mt-9">
+        <div className="animate-rise flex flex-wrap items-center gap-3 rounded-[20px] border border-ink/8 bg-white px-5 py-4 shadow-card [animation-delay:200ms]">
+          <span className="type-badge text-ink-soft">Filter</span>
 
-            <h1 className="font-display max-w-5xl text-[3.75rem] leading-[0.88] tracking-[-0.04em] sm:text-6xl md:text-7xl lg:text-[7rem]">
-              Journeys into
-              <br />
-              the wild.
-            </h1>
+          <label className="relative w-full sm:w-auto">
+            <span className="sr-only">Filter by category</span>
 
-            <div className="mt-8 flex flex-col gap-6 border-t border-white/20 pt-6 lg:flex-row lg:items-end lg:justify-between">
-              <p className="max-w-xl text-sm leading-6 text-white/70 sm:text-[15px]">
-                Discover unforgettable journeys across Tanzania's extraordinary
-                landscapes, from legendary wildlife destinations to remote
-                wilderness escapes.
-              </p>
-
-              <span className="text-[9px] uppercase tracking-[0.18em] text-white/35">
-                {tours.length} journeys · Tanzania
-              </span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FILTERS */}
-      <section className="border-b border-black/10 bg-[#FCFAF4]">
-        <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-10">
-          <div className="flex flex-col border-b border-black/10 py-5 md:flex-row md:items-center md:justify-between md:gap-8">
-            <div className="flex items-center gap-4">
-              <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-black/35">
-                Filter journeys
-              </span>
-
-              <span className="h-px w-7 bg-black/15" />
-
-              <span className="text-[10px] uppercase tracking-[0.14em] text-black/45">
-                {filteredTours.length}{" "}
-                {filteredTours.length === 1 ? "journey" : "journeys"}
-              </span>
-            </div>
-
-            <div className="mt-5 grid gap-3 sm:grid-cols-2 md:mt-0 md:flex">
-              <label className="relative">
-                <span className="sr-only">Filter by category</span>
-
-                <select
-                  value={category}
-                  onChange={(event) => setCategory(event.target.value)}
-                  className="h-10 min-w-[190px] appearance-none border border-black/15 bg-transparent px-4 pr-10 text-[10px] font-medium uppercase tracking-[0.12em] text-[#11110F] outline-none transition-colors focus:border-[#F67A05]"
-                >
-                  {categories.map((item) => (
-                    <option key={item} value={item}>
-                      {item === "All" ? "All categories" : item}
-                    </option>
-                  ))}
-                </select>
-
-                <ChevronDown
-                  aria-hidden="true"
-                  className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-black/40"
-                  strokeWidth={1.5}
-                />
-              </label>
-
-              <label className="relative">
-                <span className="sr-only">Filter by destination</span>
-
-                <select
-                  value={destination}
-                  onChange={(event) => setDestination(event.target.value)}
-                  className="h-10 min-w-[190px] appearance-none border border-black/15 bg-transparent px-4 pr-10 text-[10px] font-medium uppercase tracking-[0.12em] text-[#11110F] outline-none transition-colors focus:border-[#F67A05]"
-                >
-                  {destinations.map((item) => (
-                    <option key={item} value={item}>
-                      {item === "All" ? "All destinations" : item}
-                    </option>
-                  ))}
-                </select>
-
-                <ChevronDown
-                  aria-hidden="true"
-                  className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-black/40"
-                  strokeWidth={1.5}
-                />
-              </label>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* TOUR RESULTS */}
-      <section className="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:px-10 lg:py-28">
-        {filteredTours.length > 0 ? (
-          <>
-            <div className="mb-12 flex flex-col gap-6 border-b border-black/10 pb-8 md:flex-row md:items-end md:justify-between">
-              <div>
-                <p className="section-label">Explore</p>
-
-                <h2 className="font-display mt-5 text-[2.75rem] leading-[0.95] tracking-[-0.035em] text-[#11110F] sm:text-5xl lg:text-[4rem]">
-                  Find your
-                  <br />
-                  adventure.
-                </h2>
-              </div>
-
-              {hasFilters && (
-                <button
-                  type="button"
-                  onClick={clearFilters}
-                  className="group inline-flex items-center gap-2 self-start border-b border-black/30 pb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-black/55 transition-colors hover:border-[#F67A05] hover:text-[#F67A05] md:self-auto"
-                >
-                  Clear filters
-                  <ArrowUpRight
-                    aria-hidden="true"
-                    className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                    strokeWidth={1.5}
-                  />
-                </button>
-              )}
-            </div>
-
-            <div className="grid gap-x-7 gap-y-16 md:grid-cols-2 lg:grid-cols-3 lg:gap-y-20">
-              {filteredTours.map((tour) => (
-                <TourCard key={tour.id} tour={tour} />
+            <select
+              value={category}
+              onChange={(event) => setCategory(event.target.value)}
+              className={selectClassName}
+            >
+              {categories.map((item) => (
+                <option key={item} value={item}>
+                  {item === "All" ? "All categories" : item}
+                </option>
               ))}
-            </div>
-          </>
-        ) : (
-          <div className="border-y border-black/10 py-20 text-center">
-            <p className="section-label justify-center text-[#C52A0E]">
-              No journeys found
-            </p>
+            </select>
 
-            <h2 className="font-display mt-6 text-4xl leading-none tracking-[-0.03em] text-[#11110F] sm:text-5xl">
-              Try another filter.
-            </h2>
+            <ChevronDown
+              aria-hidden="true"
+              className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-soft"
+              strokeWidth={1.6}
+            />
+          </label>
 
-            <p className="mx-auto mt-5 max-w-md text-sm leading-6 text-black/50">
-              We couldn't find a safari matching those filters. Try another
-              destination or category.
-            </p>
+          <label className="relative w-full sm:w-auto">
+            <span className="sr-only">Filter by destination</span>
 
+            <select
+              value={destination}
+              onChange={(event) => setDestination(event.target.value)}
+              className={selectClassName}
+            >
+              {destinations.map((item) => (
+                <option key={item} value={item}>
+                  {item === "All" ? "All destinations" : item}
+                </option>
+              ))}
+            </select>
+
+            <ChevronDown
+              aria-hidden="true"
+              className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-soft"
+              strokeWidth={1.6}
+            />
+          </label>
+
+          {hasFilters && (
             <button
               type="button"
               onClick={clearFilters}
-              className="group mt-7 inline-flex items-center gap-3 border-b border-black/40 pb-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[#11110F] transition-colors hover:border-[#F67A05] hover:text-[#F67A05]"
+              className="pill pill-outline h-10 px-4 text-[12px]"
             >
-              View all safaris
-              <ArrowUpRight
-                aria-hidden="true"
-                className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                strokeWidth={1.5}
-              />
+              Clear filters
             </button>
-          </div>
-        )}
-      </section>
+          )}
 
-      {/* WHY NDAUWO */}
-      <section className="bg-[#EDE1CF]">
-        <div className="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:px-10 lg:py-28">
-          <div className="flex flex-col gap-10 border-b border-black/15 pb-8 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <p className="section-label text-black/45">Why Ndauwo</p>
+          <span className="type-meta ml-auto uppercase text-ink-soft">
+            {filteredTours.length}{" "}
+            {filteredTours.length === 1 ? "safari" : "safaris"}
+          </span>
+        </div>
+      </div>
 
-              <h2 className="font-display mt-5 max-w-2xl text-[2.75rem] leading-[0.95] tracking-[-0.035em] text-[#11110F] sm:text-5xl lg:text-[4rem]">
-                More than
-                <br />
-                a safari.
-              </h2>
+      <section className="bg-canvas pb-10 pt-9 lg:pb-16">
+        <div className="container-page">
+          <h2 className="sr-only">Safari results</h2>
+
+          {filteredTours.length > 0 ? (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredTours.map((tour, index) => (
+                <Reveal
+                  key={tour.id}
+                  className="h-full"
+                  delay={Math.min(index, 6) * 0.07}
+                >
+                  <TourCard tour={tour} variant="minimal" />
+                </Reveal>
+              ))}
             </div>
+          ) : (
+            <div className="surface-card px-6 py-14 text-center">
+              <h2 className="type-section-title">No safaris match</h2>
 
-            <p className="max-w-md text-sm leading-6 text-black/50 lg:pb-1">
-              Thoughtful journeys built around local knowledge, personal
-              service and the extraordinary nature of Tanzania.
-            </p>
-          </div>
+              <p className="mx-auto mt-3 max-w-md text-[0.84375rem] leading-relaxed text-ink-muted">
+                Nothing matches that combination of category and destination
+                yet.
+              </p>
 
-          <div className="grid border-t border-black/10 sm:grid-cols-3">
-            {[
-              {
-                number: "01",
-                title: "Local expertise",
-                text: "Experienced guides who know Tanzania beyond the usual routes.",
-              },
-              {
-                number: "02",
-                title: "Personal journeys",
-                text: "Safari experiences shaped around what you want to discover.",
-              },
-              {
-                number: "03",
-                title: "Wild at heart",
-                text: "Meaningful encounters with landscapes, wildlife and people.",
-              },
-            ].map((item) => (
-              <article
-                key={item.title}
-                className="border-b border-black/10 py-7 sm:border-b-0 sm:border-l sm:px-7 lg:px-8"
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="pill pill-dark mt-6 h-11 px-5 text-[12.5px]"
               >
-                <span className="text-[9px] font-medium tracking-[0.16em] text-black/30">
-                  {item.number}
-                </span>
-
-                <h3 className="font-display mt-10 text-[1.7rem] leading-none tracking-[-0.02em] text-[#11110F]">
-                  {item.title}
-                </h3>
-
-                <p className="mt-4 max-w-sm text-[13px] leading-6 text-black/55">
-                  {item.text}
-                </p>
-
-                <div className="mt-7 h-px w-8 bg-[#C52A0E]" />
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="bg-[#11110F] text-white">
-        <div className="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:px-10 lg:py-28">
-          <div className="flex flex-col gap-10 border-y border-white/15 py-14 sm:py-16 lg:flex-row lg:items-end lg:justify-between lg:py-20">
-            <div className="max-w-3xl">
-              <p className="flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.2em] text-white/45">
-                <span className="h-px w-7 bg-[#F67A05]" />
-                Start planning
-              </p>
-
-              <h2 className="font-display mt-6 text-[3.25rem] leading-[0.9] tracking-[-0.04em] sm:text-6xl lg:text-[5.5rem]">
-                Your wild story
-                <br />
-                starts here.
-              </h2>
-
-              <p className="mt-7 max-w-xl text-sm leading-6 text-white/55 sm:text-[15px]">
-                Tell us what kind of experience you're looking for and our
-                team will help you plan your journey.
-              </p>
+                Show all safaris
+              </button>
             </div>
-
-            <Link
-              href="/contact"
-              className="group inline-flex h-11 shrink-0 items-center justify-center gap-3 border border-white bg-white px-5 text-[10px] font-medium uppercase tracking-[0.14em] text-black transition-colors duration-300 hover:bg-transparent hover:text-white"
-            >
-              Plan my safari
-              <ArrowUpRight
-                aria-hidden="true"
-                className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                strokeWidth={1.5}
-              />
-            </Link>
-          </div>
+          )}
         </div>
       </section>
+
+      <ImageCta imageUrl={ctaImage} phone={phone} />
     </main>
   );
 }

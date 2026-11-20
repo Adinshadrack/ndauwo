@@ -1,250 +1,199 @@
-import Link from "next/link";
-import {
-  Mail,
-  MapPin,
-  Phone,
-  ArrowUpRight,
-} from "lucide-react";
+import Image from "next/image";
+import { ArrowRight } from "lucide-react";
+import { FaFacebookF, FaInstagram } from "react-icons/fa6";
 
+import { Link } from "@/i18n/navigation";
+import { NewsletterForm } from "./newsletter-form";
 import type { SiteSettings } from "@/types/api";
 
-const explore = [
-  ["Safaris", "/tours"],
-  ["Destinations", "/destinations"],
-  ["Gallery", "/gallery"],
-  ["Travel Journal", "/blog"],
-];
+const exploreLinks = [
+  { label: "Safaris", href: "/tours" },
+  { label: "Destinations", href: "/destinations" },
+  { label: "Gallery", href: "/gallery" },
+  { label: "Travel Journal", href: "/blog" },
+] as const;
 
-const company = [
-  ["About Us", "/about"],
-  ["Contact Us", "/contact"],
-  ["FAQs", "/faq"],
-  ["Terms & Conditions", "/terms"],
-];
+const companyLinks = [
+  { label: "About Us", href: "/about" },
+  { label: "Contact Us", href: "/contact" },
+  { label: "FAQs", href: "/faq" },
+  { label: "Terms and Conditions", href: "/terms" },
+] as const;
+
+const columnHeadingClassName =
+  "text-[10px] font-semibold uppercase tracking-[0.2em] text-white/45";
+
+const columnLinkClassName =
+  "w-max text-[12.5px] leading-relaxed text-white/75 transition-colors hover:text-[#F67A05]";
 
 interface FooterProps {
   settings: SiteSettings;
 }
 
-function getWhatsAppUrl(value: string) {
-  if (!value) return "";
-
-  // Keep only numbers for wa.me
-  const phone = value.replace(/\D/g, "");
-
-  return phone ? `https://wa.me/${phone}` : "";
-}
-
 export function Footer({ settings }: FooterProps) {
-  const whatsappUrl = settings.whatsapp
-    ? getWhatsAppUrl(settings.whatsapp)
-    : "";
+  const phoneDial = settings.phone?.replace(/[^\d+]/g, "");
+  const socials = [
+    { label: "Instagram", href: settings.instagram_url, Icon: FaInstagram },
+    { label: "Facebook", href: settings.facebook_url, Icon: FaFacebookF },
+  ].filter((social) => Boolean(social.href));
 
   return (
-    <footer className="bg-[#11110F] text-white">
-      <div className="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-24">
-        {/* Main footer */}
-        <div className="grid gap-12 border-b border-white/10 pb-14 lg:grid-cols-[1.5fr_0.7fr_0.7fr_1fr] lg:gap-16 lg:pb-20">
-          {/* Brand */}
-          <div>
+    <footer className="relative w-full">
+      {/* Wildlife band sits on the page canvas so the silhouettes read against it. */}
+      <div className="bg-[#FCFAF4] leading-none">
+        <Image
+          src="/images/footer-animals.png"
+          alt=""
+          aria-hidden="true"
+          width={1440}
+          height={187}
+          sizes="100vw"
+          className="h-auto w-full select-none"
+        />
+      </div>
+
+      <div className="bg-[#1B291E] font-[family-name:var(--font-primary)]">
+        <div className="mx-auto w-full max-w-[1280px] px-5 pb-6 pt-12 sm:px-8 lg:px-10">
+          <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.7fr)_minmax(0,1fr)] lg:gap-0">
+            {/* Explore + Company */}
+            <div className="grid grid-cols-2 gap-6 lg:pr-10">
+              <div>
+                <h2 className={columnHeadingClassName}>Explore</h2>
+                <nav aria-label="Explore" className="mt-4 flex flex-col gap-2">
+                  {exploreLinks.map((link) => (
+                    <Link
+                      key={link.label}
+                      href={link.href}
+                      className={columnLinkClassName}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </nav>
+
+                {socials.length > 0 && (
+                  <div className="mt-7 flex items-center gap-2">
+                    {socials.map(({ href, label, Icon }) => (
+                      <a
+                        key={label}
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={label}
+                        className="flex h-7 w-7 items-center justify-center border border-white/25 text-white/70 transition-colors hover:border-[#F67A05] hover:bg-[#F67A05] hover:text-white"
+                      >
+                        <Icon className="h-3 w-3" aria-hidden="true" />
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <h2 className={columnHeadingClassName}>Company</h2>
+                <nav aria-label="Company" className="mt-4 flex flex-col gap-2">
+                  {companyLinks.map((link) => (
+                    <Link
+                      key={link.label}
+                      href={link.href}
+                      className={columnLinkClassName}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </nav>
+              </div>
+            </div>
+
+            {/* Newsletter */}
+            <div className="flex flex-col items-center border-t border-white/12 pt-9 text-center md:border-t-0 md:pt-0 lg:border-l lg:border-t-0 lg:px-12">
+              <h2 className="font-[family-name:var(--font-accent)] text-[1.85rem] leading-none text-[#F67A05]">
+                Get Updates
+              </h2>
+              <p className="mt-3 max-w-[18rem] text-[11.5px] leading-[1.75] text-white/60">
+                Subscribe to our newsletter to receive updates and special
+                announcements
+              </p>
+              <div className="mt-4 w-full max-w-[23rem]">
+                <NewsletterForm />
+              </div>
+            </div>
+
+            {/* Contact */}
+            <div className="flex flex-col border-t border-white/12 pt-9 md:col-span-2 md:flex-row md:items-end md:justify-between md:gap-10 lg:col-span-1 lg:flex-col lg:items-stretch lg:border-l lg:border-t-0 lg:pl-12 lg:pt-0">
+              <div>
+                <Link
+                  href="/contact"
+                  className="group inline-flex w-max items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/45 transition-colors hover:text-white/80"
+                >
+                  Send us a Message
+                  <ArrowRight
+                    className="h-3 w-3 transition-transform group-hover:translate-x-0.5"
+                    aria-hidden="true"
+                  />
+                </Link>
+
+                <div className="mt-4 flex flex-col gap-2 text-[12.5px] leading-relaxed text-white/75">
+                  {settings.phone && (
+                    <a
+                      href={`tel:${phoneDial}`}
+                      className="w-max transition-colors hover:text-[#F67A05]"
+                    >
+                      {settings.phone}
+                    </a>
+                  )}
+
+                  {settings.address && (
+                    <p className="max-w-[13rem] text-white/60">
+                      {settings.address}
+                    </p>
+                  )}
+
+                  {settings.email && (
+                    <a
+                      href={`mailto:${settings.email}`}
+                      className="w-max break-all transition-colors hover:text-[#F67A05]"
+                    >
+                      {settings.email}
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-8 md:mt-0 lg:mt-auto lg:pt-8">
+                {settings.logo_url ? (
+                  <Link href="/" aria-label="Ndauwo Safaris home">
+                    <Image
+                      src={settings.logo_url}
+                      alt="Ndauwo Safaris"
+                      width={180}
+                      height={56}
+                      className="h-8 w-auto object-contain"
+                    />
+                  </Link>
+                ) : (
+                  <Link
+                    href="/"
+                    className="text-xl font-bold tracking-tight text-white"
+                  >
+                    NDAUWO<span className="text-[#F67A05]">.</span>
+                  </Link>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom bar. The right padding on narrower viewports keeps the
+              privacy link clear of the fixed WhatsApp button in the corner. */}
+          <div className="mt-8 flex flex-col gap-2 border-t border-white/12 pt-5 text-[10px] text-white/35 max-[1343px]:pr-16 sm:flex-row sm:items-center sm:justify-between">
+            <p>© {new Date().getFullYear()} Ndauwo Safaris. All rights reserved.</p>
             <Link
-              href="/"
-              className="inline-flex items-center"
+              href="/privacy"
+              className="w-max transition-colors hover:text-white/70"
             >
-              {settings.logo_url ? (
-                <img
-                  src={settings.logo_url}
-                  alt="Ndauwo Safaris"
-                  className="h-9 w-auto object-contain"
-                />
-              ) : (
-                <span className="font-display text-3xl tracking-[-0.03em]">
-                  Ndauwo
-                  <span className="text-[#F67A05]">.</span>
-                </span>
-              )}
+              Privacy policy
             </Link>
-
-            <p className="mt-6 max-w-sm text-[13px] leading-6 text-white/45">
-              {settings.about ||
-                "Thoughtfully crafted safari journeys through Tanzania. Discover wild places, meaningful encounters and unforgettable moments."}
-            </p>
-
-            {/* Social links */}
-            <div className="mt-7 flex flex-wrap gap-x-5 gap-y-2">
-              {settings.instagram_url && (
-                <a
-                  href={settings.instagram_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Instagram"
-                  className="group inline-flex items-center text-[10px] font-medium uppercase tracking-[0.14em] text-white/45 transition-colors duration-300 hover:text-white"
-                >
-                  Instagram
-
-                  <ArrowUpRight
-                    className="ml-1.5 h-3 w-3 text-white/25 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                    strokeWidth={1.25}
-                  />
-                </a>
-              )}
-
-              {settings.facebook_url && (
-                <a
-                  href={settings.facebook_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Facebook"
-                  className="group inline-flex items-center text-[10px] font-medium uppercase tracking-[0.14em] text-white/45 transition-colors duration-300 hover:text-white"
-                >
-                  Facebook
-
-                  <ArrowUpRight
-                    className="ml-1.5 h-3 w-3 text-white/25 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                    strokeWidth={1.25}
-                  />
-                </a>
-              )}
-            </div>
           </div>
-
-          {/* Explore */}
-          <div>
-            <h3 className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/35">
-              Explore
-            </h3>
-
-            <nav className="mt-6 flex flex-col gap-3">
-              {explore.map(([label, href]) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="group inline-flex w-fit items-center text-[13px] text-white/55 transition-colors duration-300 hover:text-white"
-                >
-                  {label}
-
-                  <ArrowUpRight
-                    className="ml-1.5 h-3 w-3 -translate-x-1 text-white/0 transition-all duration-300 group-hover:translate-x-0 group-hover:text-white/40"
-                    strokeWidth={1.25}
-                  />
-                </Link>
-              ))}
-            </nav>
-          </div>
-
-          {/* Company */}
-          <div>
-            <h3 className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/35">
-              Company
-            </h3>
-
-            <nav className="mt-6 flex flex-col gap-3">
-              {company.map(([label, href]) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="group inline-flex w-fit items-center text-[13px] text-white/55 transition-colors duration-300 hover:text-white"
-                >
-                  {label}
-
-                  <ArrowUpRight
-                    className="ml-1.5 h-3 w-3 -translate-x-1 text-white/0 transition-all duration-300 group-hover:translate-x-0 group-hover:text-white/40"
-                    strokeWidth={1.25}
-                  />
-                </Link>
-              ))}
-            </nav>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <h3 className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/35">
-              Let&apos;s talk
-            </h3>
-
-            <div className="mt-6 space-y-4">
-              {settings.email && (
-                <a
-                  href={`mailto:${settings.email}`}
-                  className="group flex gap-3 text-[13px] leading-5 text-white/50 transition-colors duration-300 hover:text-white"
-                >
-                  <Mail
-                    className="mt-0.5 h-3.5 w-3.5 shrink-0 text-white/30 transition-colors group-hover:text-[#F67A05]"
-                    strokeWidth={1.25}
-                  />
-
-                  <span className="break-all">
-                    {settings.email}
-                  </span>
-                </a>
-              )}
-
-              {settings.phone && (
-                <a
-                  href={`tel:${settings.phone.replace(/\s/g, "")}`}
-                  className="group flex gap-3 text-[13px] leading-5 text-white/50 transition-colors duration-300 hover:text-white"
-                >
-                  <Phone
-                    className="mt-0.5 h-3.5 w-3.5 shrink-0 text-white/30 transition-colors group-hover:text-[#F67A05]"
-                    strokeWidth={1.25}
-                  />
-
-                  <span>{settings.phone}</span>
-                </a>
-              )}
-
-              {settings.address && (
-                <a
-                  href={settings.google_maps_url || "#"}
-                  target={
-                    settings.google_maps_url
-                      ? "_blank"
-                      : undefined
-                  }
-                  rel={
-                    settings.google_maps_url
-                      ? "noopener noreferrer"
-                      : undefined
-                  }
-                  className="group flex gap-3 text-[13px] leading-5 text-white/50 transition-colors duration-300 hover:text-white"
-                >
-                  <MapPin
-                    className="mt-0.5 h-3.5 w-3.5 shrink-0 text-white/30 transition-colors group-hover:text-[#F67A05]"
-                    strokeWidth={1.25}
-                  />
-
-                  <span>{settings.address}</span>
-                </a>
-              )}
-
-              {whatsappUrl && (
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group inline-flex items-center text-[10px] font-medium uppercase tracking-[0.14em] text-[#F67A05] transition-colors duration-300 hover:text-white"
-                >
-                  Chat on WhatsApp
-
-                  <ArrowUpRight
-                    className="ml-1.5 h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                    strokeWidth={1.25}
-                  />
-                </a>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom */}
-        <div className="flex flex-col gap-3 pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-[9px] uppercase tracking-[0.14em] text-white/25">
-            © {new Date().getFullYear()} Ndauwo Safaris. All rights reserved.
-          </p>
-
-          <p className="text-[9px] uppercase tracking-[0.14em] text-white/25">
-            Crafted with care in Tanzania.
-          </p>
         </div>
       </div>
     </footer>

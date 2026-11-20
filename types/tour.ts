@@ -44,4 +44,9 @@ export interface Tour {
 
   created_at?: string;
   updated_at?: string;
+
+  is_hero_featured?: boolean;
+  discount_tag?: string | null;
+  original_price?: number | string | null;
+  discount_percentage?: number | null;
 }

@@ -2,243 +2,221 @@
 
 import { useMemo, useState } from "react";
 
+import { Reveal } from "@/components/motion/reveal";
+import { CompactStory, SectionLabel, StoryCard } from "@/components/blog/story-card";
+import { CtaLink } from "@/components/ui/cta";
+import { ImageCta } from "@/components/ui/image-cta";
+import { PhotoHero } from "@/components/ui/photo-hero";
+import { cn } from "@/lib/utils";
 import type { BlogPost } from "@/types/api";
-import { BlogCard } from "./blog-card";
-import { HeroVideo } from "@/components/media/hero-video";
 
 interface BlogPageProps {
   posts: BlogPost[];
+  /** Site hero photography, used in the banner and behind the closing band. */
+  heroImage?: string;
+  ctaImage?: string;
+  phone?: string;
 }
 
-export function BlogPage({ posts }: BlogPageProps) {
-  const categories = useMemo(() => {
-    const values = posts
-      .map((post) => post.category?.trim())
-      .filter(Boolean) as string[];
+export function BlogPage({ posts, heroImage, ctaImage, phone }: BlogPageProps) {
+  const topics = useMemo(() => {
+    const tally = new Map<string, number>();
 
-    return ["All", ...Array.from(new Set(values))];
+    posts.forEach((post) => {
+      const category = post.category?.trim();
+
+      if (!category) return;
+
+      tally.set(category, (tally.get(category) ?? 0) + 1);
+    });
+
+    return Array.from(tally.entries());
   }, [posts]);
 
   const [activeCategory, setActiveCategory] = useState("All");
 
-  const filteredPosts =
-    activeCategory === "All"
-      ? posts
-      : posts.filter(
-          (post) =>
-            post.category?.toLowerCase() === activeCategory.toLowerCase()
-        );
+  const filteredPosts = useMemo(() => {
+    if (activeCategory === "All") return posts;
 
-  const featuredPost = posts[0];
+    return posts.filter(
+      (post) => post.category?.trim().toLowerCase() === activeCategory.toLowerCase(),
+    );
+  }, [posts, activeCategory]);
+
+  const [lead, ...rest] = filteredPosts;
+  const featuredSide = rest.slice(0, 2);
+  const latestHref = lead ? `/blog/${lead.slug}` : "/tours";
 
   return (
-    <main className="bg-[#FCFAF4]">
-      {/* HERO */}
-      <section className="relative overflow-hidden bg-[#11110F] text-white">
-        <HeroVideo />
-        <div className="relative z-10 mx-auto max-w-7xl px-6 pb-24 pt-36 lg:px-8 lg:pb-32 lg:pt-44">
-          <div className="max-w-5xl">
-            <p className="eyebrow text-[#F67A05]">Safari Journal</p>
+    <main className="bg-canvas">
+      <PhotoHero
+        title="Safari Journal"
+        description="Guides, wildlife stories and practical notes from our safaris across Tanzania."
+        backdropImage={heroImage}
+        eyebrow="Guides & stories"
+        align="center"
+        meta={
+          posts.length
+            ? [
+                `${posts.length} ${posts.length === 1 ? "story" : "stories"}`,
+                ...(topics.length
+                  ? [
+                      `${topics.length} ${
+                        topics.length === 1 ? "topic" : "topics"
+                      }`,
+                    ]
+                  : []),
+              ]
+            : undefined
+        }
+        actions={
+          <>
+            <CtaLink href={latestHref} size="lg" arrow={false}>
+              Read the latest
+            </CtaLink>
 
-            <h1 className="font-display mt-6 max-w-5xl text-5xl leading-[0.92] tracking-[-0.035em] sm:text-6xl lg:text-[7rem]">
-              Stories from
-              <br />
-              the <span className="text-[#F67A05]">wild.</span>
-            </h1>
+            <CtaLink href="/contact" variant="outline" size="lg" arrow={false}>
+              Plan a safari
+            </CtaLink>
+          </>
+        }
+      />
 
-            <div className="mt-9 flex max-w-2xl items-start gap-5">
-              <span className="mt-3 hidden h-px w-12 shrink-0 bg-white/30 sm:block" />
+      {/* Category tabs, the way the journal splits its subject matter. */}
+      <div className="border-b border-ink/12 bg-canvas">
+        <div className="container-page">
+          <div className="scrollbar-hidden flex items-center gap-7 overflow-x-auto">
+            {["All", ...topics.map(([category]) => category)].map((label) => {
+              const active = activeCategory === label;
 
-              <p className="text-base leading-7 text-white/60 sm:text-lg sm:leading-8">
-                Safari guides, Tanzania travel inspiration, wildlife stories
-                and practical ideas for your journey.
-              </p>
-            </div>
+              return (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => setActiveCategory(label)}
+                  aria-pressed={active}
+                  className={cn(
+                    "relative shrink-0 py-4 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors",
+                    active ? "text-ink" : "text-ink/40 hover:text-ink",
+                  )}
+                >
+                  {label}
+
+                  {active && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-x-0 bottom-0 h-0.5 bg-ink"
+                    />
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
+      </div>
 
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-white/10" />
-      </section>
+      {lead ? (
+        <section className="bg-canvas pt-11">
+          <div className="container-page">
+            <SectionLabel>Featured stories</SectionLabel>
 
-      {/* FEATURED ARTICLE */}
-      {featuredPost && (
-        <section className="bg-[#FCFAF4] py-20 lg:py-28">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <div className="mb-8 flex items-center justify-between border-b border-black/10 pb-5">
-              <p className="section-label">Featured story</p>
+            <div className="grid gap-x-10 gap-y-10 lg:grid-cols-[minmax(0,1.9fr)_minmax(0,1fr)]">
+              <Reveal>
+                <StoryCard post={lead} size="lead" />
+              </Reveal>
 
-              <span className="text-[0.65rem] uppercase tracking-[0.16em] text-black/35">
-                From the journal
-              </span>
-            </div>
-
-            <article className="grid lg:grid-cols-[1.15fr_0.85fr]">
-              <a
-                href={`/blog/${featuredPost.slug}`}
-                className="group image-zoom relative block min-h-[380px] overflow-hidden bg-[#EDE1CF] lg:min-h-[620px]"
-              >
-                {featuredPost.featured_image ? (
-                  <img
-                    src={featuredPost.featured_image}
-                    alt={featuredPost.title}
-                    className="absolute inset-0 h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-[#C52A0E]" />
-                )}
-
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-
-                <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between text-white lg:bottom-8 lg:left-8 lg:right-8">
-                  <span className="text-[0.65rem] uppercase tracking-[0.18em] text-white/75">
-                    Read story
-                  </span>
-
-                  <span className="flex h-10 w-10 items-center justify-center border border-white/40 text-lg transition-colors group-hover:border-white group-hover:bg-white group-hover:text-[#11110F]">
-                    ↗
-                  </span>
+              {featuredSide.length > 0 && (
+                <div className="flex flex-col gap-6 sm:grid sm:grid-cols-2 sm:gap-8 lg:flex lg:flex-col lg:gap-6">
+                  {featuredSide.map((post, index) => (
+                    <Reveal key={post.id} delay={0.12 + index * 0.08}>
+                      <CompactStory post={post} />
+                    </Reveal>
+                  ))}
                 </div>
-              </a>
-
-              <div className="flex flex-col justify-center border-x border-b border-black/10 bg-[#EDE1CF] p-7 sm:p-10 lg:border-b-0 lg:border-l-0 lg:p-14">
-                {featuredPost.category && (
-                  <p className="eyebrow text-[#C52A0E]">
-                    {featuredPost.category}
-                  </p>
-                )}
-
-                <h2 className="font-display mt-5 text-4xl leading-[1] tracking-[-0.025em] sm:text-5xl lg:text-6xl">
-                  {featuredPost.title}
-                </h2>
-
-                {featuredPost.excerpt && (
-                  <p className="mt-6 max-w-xl text-base leading-8 text-black/60">
-                    {featuredPost.excerpt}
-                  </p>
-                )}
-
-                <a
-                  href={`/blog/${featuredPost.slug}`}
-                  className="group mt-8 inline-flex w-fit items-center gap-3 border-b border-black/25 pb-2 text-xs font-medium uppercase tracking-[0.16em] text-[#11110F] transition-colors hover:border-[#C52A0E] hover:text-[#C52A0E]"
-                >
-                  Read the story
-                  <span className="transition-transform duration-300 group-hover:translate-x-1">
-                    →
-                  </span>
-                </a>
-              </div>
-            </article>
+              )}
+            </div>
           </div>
         </section>
-      )}
+      ) : null}
 
-      {/* CATEGORY FILTER */}
-      <section className="border-y border-black/10 bg-[#FCFAF4]">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="flex items-center gap-6 overflow-x-auto">
-            <span className="shrink-0 py-5 text-[0.65rem] uppercase tracking-[0.16em] text-black/35">
-              Filter
-            </span>
+      <section className="bg-canvas py-14 lg:py-16">
+        <div className="container-page grid gap-12 lg:grid-cols-[minmax(0,1fr)_264px] lg:gap-16">
+          <div>
+            {filteredPosts.length > 0 ? (
+              <>
+                <SectionLabel>Latest stories</SectionLabel>
 
-            <div className="flex min-w-max">
-              {categories.map((category) => {
-                const active = activeCategory === category;
+                <div className="grid gap-x-9 gap-y-10 sm:grid-cols-2">
+                  {filteredPosts.map((post, index) => (
+                    <Reveal key={post.id} delay={Math.min(index, 6) * 0.07}>
+                      <StoryCard post={post} />
+                    </Reveal>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="surface-card px-6 py-16 text-center">
+                <h2 className="type-section-title">The journal is being written</h2>
 
-                return (
-                  <button
-                    key={category}
-                    type="button"
-                    onClick={() => setActiveCategory(category)}
-                    className={`relative px-4 py-5 text-xs uppercase tracking-[0.14em] transition-colors ${
-                      active
-                        ? "text-[#11110F]"
-                        : "text-black/40 hover:text-[#11110F]"
-                    }`}
-                  >
-                    {category}
-
-                    {active && (
-                      <span className="absolute bottom-0 left-4 right-4 h-px bg-[#F67A05]" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+                <p className="mx-auto mt-3 max-w-md text-[0.84375rem] leading-relaxed text-ink-muted">
+                  Safari guides and travel notes will appear here as they are
+                  published.
+                </p>
+              </div>
+            )}
           </div>
-        </div>
-      </section>
 
-      {/* ARTICLES */}
-      <section className="bg-[#FCFAF4] py-20 lg:py-28">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          {filteredPosts.length > 0 ? (
-            <>
-              <div className="mb-8 flex items-end justify-between border-b border-black/10 pb-5">
-                <p className="section-label">Latest stories</p>
+          {topics.length > 0 && (
+            <Reveal as="aside" className="lg:pt-1" delay={0.12}>
+              <SectionLabel>Topics</SectionLabel>
 
-                <span className="text-[0.65rem] uppercase tracking-[0.16em] text-black/35">
-                  {filteredPosts.length}{" "}
-                  {filteredPosts.length === 1 ? "story" : "stories"}
-                </span>
-              </div>
+              <ul className="border-t border-ink/10">
+                {topics.map(([category, tally]) => {
+                  const active =
+                    activeCategory.toLowerCase() === category.toLowerCase();
 
-              <div className="grid border-t border-black/10 md:grid-cols-2 lg:grid-cols-3">
-                {filteredPosts.map((post, index) => (
-                  <BlogCard key={post.id} post={post} index={index} />
-                ))}
-              </div>
-            </>
-          ) : (
-            <div className="border-y border-black/10 py-20 text-center">
-              <p className="section-label justify-center">
-                Safari Journal
-              </p>
+                  return (
+                    <li key={category} className="border-b border-ink/10">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setActiveCategory(active ? "All" : category)
+                        }
+                        aria-pressed={active}
+                        className="group flex w-full items-baseline justify-between gap-3 py-3 text-left"
+                      >
+                        <span
+                          className={cn(
+                            "text-[0.84375rem] font-semibold transition-colors",
+                            active ? "text-clay" : "text-ink group-hover:text-clay",
+                          )}
+                        >
+                          {category}
+                        </span>
 
-              <h2 className="font-display mt-5 text-3xl text-[#11110F] sm:text-4xl">
-                No stories found
-              </h2>
-
-              <p className="mx-auto mt-4 max-w-md text-sm leading-6 text-black/50">
-                Check another category or come back soon.
-              </p>
-            </div>
+                        <span className="font-tour text-[0.8125rem] tabular-nums text-ink-soft">
+                          {tally}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </Reveal>
           )}
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="bg-[#11110F] text-white">
-        <div className="mx-auto max-w-7xl px-6 py-20 lg:px-8 lg:py-28">
-          <div className="grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:items-end">
-            <div>
-              <p className="eyebrow text-[#F67A05]">
-                Beyond the journal
-              </p>
-
-              <h2 className="font-display mt-6 max-w-3xl text-4xl leading-[0.98] tracking-[-0.025em] sm:text-5xl lg:text-6xl">
-                Turn inspiration into an unforgettable safari.
-              </h2>
-            </div>
-
-            <div className="border-t border-white/15 pt-6 lg:border-l lg:border-t-0 lg:pl-10">
-              <p className="max-w-xl text-base leading-7 text-white/55">
-                The best stories are the ones you experience yourself.
-                Explore our journeys and start planning yours.
-              </p>
-
-              <a
-                href="/tours"
-                className="group mt-8 inline-flex items-center gap-3 border-b border-white/30 pb-2 text-xs font-medium uppercase tracking-[0.16em] transition-colors hover:border-white"
-              >
-                Explore safari packages
-                <span className="transition-transform duration-300 group-hover:translate-x-1">
-                  →
-                </span>
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ImageCta
+        imageUrl={ctaImage}
+        eyebrow="Next step"
+        title="Plan a safari like this"
+        description="Tell us which stories caught your eye and how many days you have. We set the route, the lodges and the driving days around them."
+        href="/contact"
+        ctaLabel="Plan your safari"
+        secondary={{ label: "Browse safaris", href: "/tours" }}
+        phone={phone}
+      />
     </main>
   );
 }

@@ -1,75 +1,102 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { ArrowUpRight, Menu, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { Menu, X, Search, ChevronDown } from "lucide-react";
+import { Link } from "@/i18n/navigation";
+import {
+  useGoogleTranslate,
+  type LanguageOption,
+} from "trans-google-translate";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import type { SiteSettings } from "@/types/api";
 
 const navigation = [
   { label: "Home", href: "/" },
-  { label: "Tours", href: "/tours" },
   { label: "Destinations", href: "/destinations" },
-  { label: "About Us", href: "/about" },
+  { label: "Safaris", href: "/tours" },
   { label: "Gallery", href: "/gallery" },
   { label: "Blog", href: "/blog" },
   { label: "Contact", href: "/contact" },
 ];
 
+// Use the exact same language config as the Header
+const translationLanguages: LanguageOption[] = [
+  { label: "English", value: "en", flag: "gb" },
+  { label: "Français", value: "fr", flag: "fr" },
+  { label: "Español", value: "es", flag: "es" },
+  { label: "Kiswahili", value: "sw", flag: "tz" },
+];
+
 interface MobileNavProps {
   settings: Pick<SiteSettings, "logo_url">;
-  scrolled?: boolean;
+  onSearchClick?: () => void;
 }
 
-export function MobileNav({ settings, scrolled = false }: MobileNavProps) {
+export function MobileNav({ settings, onSearchClick }: MobileNavProps) {
   const [open, setOpen] = useState(false);
+  
+  // Setup Google Translate Hook
+  const { currentLanguage, changeLanguage, languages } = useGoogleTranslate({
+    defaultLanguage: "en",
+    languages: translationLanguages,
+  });
+  
+  const selectedLanguage =
+    languages.find((language) => language.value === currentLanguage) ??
+    translationLanguages[0];
 
-  // Prevent background page scrolling while the menu is open.
+  // Lock scroll when open
   useEffect(() => {
-    if (!open) return;
-
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
     return () => {
-      document.body.style.overflow = originalOverflow;
+      document.body.style.overflow = "unset";
     };
   }, [open]);
 
+  const handleSearch = () => {
+    setOpen(false);
+    if (onSearchClick) onSearchClick();
+  };
+
   return (
     <>
-      {/* Menu trigger */}
+      {/* Trigger Button */}
       <button
-        type="button"
         onClick={() => setOpen(true)}
+        className="inline-flex h-10 w-10 items-center justify-center rounded-md text-[#11110F] transition-colors hover:bg-gray-100 lg:hidden"
         aria-label="Open navigation"
-        aria-expanded={open}
-        aria-controls="mobile-navigation"
-        className={`flex h-9 w-9 items-center justify-center transition-colors duration-300 lg:hidden ${
-          scrolled ? "text-[#11110F]" : "text-white"
-        }`}
       >
-        <Menu className="h-[18px] w-[18px]" strokeWidth={1.5} />
+        <Menu className="h-6 w-6" strokeWidth={1.5} />
       </button>
 
-      {/* Full-screen navigation */}
-      {open && (
-        <div
-          id="mobile-navigation"
-          className="fixed inset-0 z-[9999] min-h-[100svh] bg-[#11110F] text-white lg:hidden"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Mobile navigation"
-        >
-          <div className="flex min-h-[100svh] w-full flex-col bg-[#11110F] px-5 py-5 sm:px-8">
-            {/* Header */}
-            <div className="flex h-14 shrink-0 items-center justify-between border-b border-white/15">
+      {/* Full-screen Mobile Menu with Motion */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ y: "-100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "-100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed inset-0 z-[100] flex h-[100dvh] w-full flex-col bg-[#F7F7F7] px-6 py-5 lg:hidden"
+          >
+            {/* Top Bar */}
+            <div className="flex items-center justify-between border-b border-gray-200 pb-4">
               <Link
                 href="/"
                 onClick={() => setOpen(false)}
-                aria-label="Ndauwo Safaris home"
-                className="relative flex h-9 items-center"
+                className="relative flex h-8 items-center"
               >
                 {settings.logo_url ? (
                   <Image
@@ -80,95 +107,95 @@ export function MobileNav({ settings, scrolled = false }: MobileNavProps) {
                     className="h-8 w-auto object-contain"
                   />
                 ) : (
-                  <span className="flex items-baseline">
-                    <span className="font-display text-[1.6rem] leading-none tracking-[-0.03em]">
-                      Ndauwo
-                    </span>
-
-                    <span className="ml-1 text-[9px] font-medium uppercase tracking-[0.18em] text-white/45">
-                      Safaris
-                    </span>
-
-                    <span className="ml-1 text-[#F67A05]">.</span>
+                  <span className="text-xl font-bold tracking-tight text-[#11110F]">
+                    NDAUWO.
                   </span>
                 )}
               </Link>
 
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                aria-label="Close navigation"
-                className="flex h-9 w-9 items-center justify-center text-white"
-              >
-                <X className="h-[19px] w-[19px]" strokeWidth={1.5} />
-              </button>
+              <div className="flex items-center gap-2">
+                {/* Search Icon at Top */}
+                <button
+                  onClick={handleSearch}
+                  className="flex h-10 w-10 items-center justify-center rounded-md text-gray-600 transition-colors hover:bg-gray-200 hover:text-black"
+                  aria-label="Search"
+                >
+                  <Search className="h-5 w-5" strokeWidth={1.5} />
+                </button>
+
+                {/* Close Button */}
+                <button
+                  onClick={() => setOpen(false)}
+                  className="flex h-10 w-10 items-center justify-center rounded-md text-gray-600 transition-colors hover:bg-gray-200 hover:text-black"
+                  aria-label="Close navigation"
+                >
+                  <X className="h-6 w-6" strokeWidth={1.5} />
+                </button>
+              </div>
             </div>
 
-            {/* Navigation */}
-            <nav className="mt-10">
-              <p className="mb-5 flex items-center gap-3 text-[9px] font-medium uppercase tracking-[0.2em] text-white/35">
-                <span aria-hidden="true" className="h-px w-6 bg-[#F67A05]" />
-                Navigation
-              </p>
+            {/* Centered Navigation Links */}
+            <div className="flex flex-1 flex-col items-center justify-center gap-6 py-8">
+              {navigation.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setOpen(false)}
+                  className="text-[1.75rem] font-semibold tracking-tight text-[#11110F] transition-colors hover:text-[#F67A05]"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
 
-              <div>
-                {navigation.map((item, index) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setOpen(false)}
-                    className="group flex items-center justify-between border-b border-white/10 py-4"
-                  >
-                    <div className="flex items-baseline gap-4">
-                      <span className="text-[9px] font-medium tracking-[0.15em] text-white/25">
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
-
-                      <span className="font-display text-[2rem] leading-none tracking-[-0.025em] text-white/90 transition-colors duration-300 group-hover:text-[#F67A05] sm:text-[2.25rem]">
-                        {item.label}
-                      </span>
-                    </div>
-
-                    <ArrowUpRight
-                      aria-hidden="true"
-                      className="h-4 w-4 text-white/20 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#F67A05]"
-                      strokeWidth={1.25}
+            {/* Bottom Actions */}
+            <div className="flex flex-col gap-4 border-t border-gray-200 pt-6 pb-4">
+              
+              {/* Language & Book Now Row */}
+              <div className="flex items-center gap-3 w-full">
+                {/* Language Selector (Google Translate) */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="flex h-12 flex-1 items-center justify-center gap-2 rounded-md border border-gray-300 bg-white px-4 text-sm font-semibold text-[#11110F] hover:border-gray-400 outline-none">
+                    <span
+                      className={`fi fi-${selectedLanguage.flag} fis text-base rounded-full`}
                     />
-                  </Link>
-                ))}
-              </div>
-            </nav>
+                    <span>{selectedLanguage.value.toUpperCase()}</span>
+                    <ChevronDown className="h-3 w-3 text-gray-500" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center" className="w-40">
+                    {languages.map((language) => (
+                      <DropdownMenuItem
+                        key={language.value}
+                        onClick={() => changeLanguage(language.value)}
+                        className="cursor-pointer gap-2 font-medium py-2"
+                      >
+                        <span
+                          className={`fi fi-${language.flag} fis text-lg rounded-full`}
+                        ></span>
+                        {language.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
-            {/* Bottom CTA */}
-            <div className="mt-auto border-t border-white/10 py-6">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-[9px] uppercase tracking-[0.18em] text-white/30">
-                    Tanzania · East Africa
-                  </p>
-
-                  <p className="mt-1 text-[11px] text-white/50">
-                    Your adventure starts here.
-                  </p>
-                </div>
-
+                {/* Book Now */}
                 <Link
                   href="/contact"
                   onClick={() => setOpen(false)}
-                  className="group inline-flex h-11 items-center justify-center gap-3 border border-white bg-white px-5 text-[10px] font-medium uppercase tracking-[0.14em] text-black transition-colors duration-300 hover:bg-transparent hover:text-white"
+                  className="flex h-12 flex-[2] items-center justify-center rounded-md bg-[#F67A05] text-[13px] font-bold uppercase tracking-wide text-white transition-colors hover:bg-[#C52A0E]"
                 >
-                  Plan Your Safari
-                  <ArrowUpRight
-                    aria-hidden="true"
-                    className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                    strokeWidth={1.5}
-                  />
+                  Book Now
                 </Link>
               </div>
+
+              {/* Optional Contact Info */}
+              <p className="mt-2 text-center text-xs text-gray-400 font-[family-name:var(--font-secondary)]">
+                Need help? Call us at +255 743 913 002
+              </p>
             </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

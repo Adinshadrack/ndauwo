@@ -24,7 +24,12 @@ export interface BlogPost {
   title: string;
   slug: string;
 
+  /** Plain-text body; still returned for search and older posts. */
   content: string;
+
+  /** Sanitised rich text, ready to render. Falls back to `content`. */
+  content_html?: string;
+
   excerpt: string;
 
   featured_image: string;
@@ -40,15 +45,21 @@ export interface BlogPost {
   published_at?: string;
   created_at?: string;
   updated_at?: string;
+
+  /** Server-computed time to read, from the same body it returns. */
+  reading_minutes?: number;
 }
 
 export interface Testimonial {
   id: number;
-
   name: string;
   content: string;
   rating: number;
-
+  platform: 'tripadvisor' | 'google' | 'safaribookings' | 'direct';
+  review_url?: string | null;
+  reviewer_title?: string | null;
+  avatar_url?: string | null;
+  review_date?: string | null;
   is_published?: boolean;
   created_at?: string;
 }
