@@ -11,6 +11,17 @@ type ApiOptions = RequestInit & {
   };
 };
 
+/** A rejection from the API, carrying the status so callers can relay it. */
+export class ApiError extends Error {
+  readonly status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
 export async function apiFetch<T>(
   endpoint: string,
   options: ApiOptions = {},
@@ -40,7 +51,7 @@ export async function apiFetch<T>(
       // Keep default message.
     }
 
-    throw new Error(message);
+    throw new ApiError(message, response.status);
   }
 
   return response.json();

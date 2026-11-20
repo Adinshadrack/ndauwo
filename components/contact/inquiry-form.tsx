@@ -6,7 +6,6 @@ import { motion } from "motion/react";
 import { Check, ChevronDown } from "lucide-react";
 
 import { CtaButton } from "@/components/ui/cta";
-import { createInquiry } from "@/lib/api/inquiries";
 import {
   inquirySchema,
   type InquiryFormValues,
@@ -42,6 +41,31 @@ const fieldClass =
 const selectClass = cn(fieldClass, "appearance-none pr-10");
 
 const labelClass = "mb-1.5 block text-[0.8125rem] font-semibold text-ink";
+
+/**
+ * Posts to the site's own `/api/inquiries`. The API is called by that route on
+ * the server, so the browser never makes a cross-origin request and no CORS
+ * allowlist can block the form from a custom domain or a preview deployment.
+ */
+async function submitInquiry(values: InquiryFormValues) {
+  const response = await fetch("/api/inquiries", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(values),
+  });
+
+  const payload = (await response.json().catch(() => null)) as {
+    message?: string;
+  } | null;
+
+  if (!response.ok) {
+    throw new Error(
+      payload?.message || "Something went wrong. Please try again."
+    );
+  }
+
+  return payload;
+}
 
 interface FieldProps {
   id: string;
@@ -131,7 +155,7 @@ export function InquiryForm({ tours, selectedTourSlug }: InquiryFormProps) {
     try {
       setSubmitting(true);
 
-      await createInquiry(result.data);
+      await submitInquiry(result.data);
 
       setSuccess(true);
       setValues(initialValues);
