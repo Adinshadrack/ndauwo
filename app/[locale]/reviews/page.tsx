@@ -71,7 +71,6 @@ export default async function ReviewsPage() {
 
       <ImageCta
         imageUrl={settings.hero_image_url || undefined}
-        eyebrow="Ready when you are"
         title="The next story could be yours."
         description="Tell us what you are dreaming of and we will shape the journey around you."
         href="/contact"

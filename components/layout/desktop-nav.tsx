@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ChevronDown, MapPin, Star } from "lucide-react";
+import { ChevronDown, Compass, MapPin, Star } from "lucide-react";
 import type { Tour, Destination } from "@/types/api";
 import { Link, usePathname } from "@/i18n/navigation";
 interface DesktopNavProps {
@@ -51,9 +51,11 @@ export function DesktopNav({ tours, destinations }: DesktopNavProps) {
         </Link>
         <span className={`absolute bottom-4 left-0 h-[2px] bg-[#F67A05] transition-all duration-300 ${pathname.startsWith("/destinations") ? "w-full" : "w-0 group-hover:w-full"}`} />
 
-        {/* MEGA MENU DROPDOWN */}
-        <div className="invisible absolute left-1/2 top-[72px] w-[900px] -translate-x-1/2 opacity-0 transition-all duration-300 group-hover:visible group-hover:opacity-100">
-          <div className="mt-2 overflow-hidden bg-white shadow-2xl border border-gray-100 rounded-b-lg">
+        {/* MEGA MENU DROPDOWN — anchored to the viewport, not the trigger:
+            a 900px panel centred under the second nav item would run off the
+            left edge at 1280. The padding bridges the hover gap. */}
+        <div className="invisible fixed left-1/2 top-[114px] w-[min(900px,calc(100vw-2rem))] -translate-x-1/2 pt-2 opacity-0 transition-all duration-300 group-hover:visible group-hover:opacity-100">
+          <div className="max-h-[calc(100dvh-130px)] overflow-y-auto bg-white shadow-2xl border border-gray-100 rounded-b-lg">
             <div className="grid grid-cols-4 gap-8 p-8">
               {/* Col 1 */}
               <div>
@@ -127,9 +129,9 @@ export function DesktopNav({ tours, destinations }: DesktopNavProps) {
         </Link>
         <span className={`absolute bottom-4 left-0 h-[2px] bg-[#F67A05] transition-all duration-300 ${pathname.startsWith("/tours") ? "w-full" : "w-0 group-hover:w-full"}`} />
 
-        {/* MEGA MENU DROPDOWN */}
-        <div className="invisible absolute left-1/2 top-[72px] w-[1000px] -translate-x-1/2 opacity-0 transition-all duration-300 group-hover:visible group-hover:opacity-100">
-          <div className="mt-2 overflow-hidden bg-white shadow-2xl border border-gray-100 rounded-b-lg">
+        {/* MEGA MENU DROPDOWN — same viewport anchoring as destinations. */}
+        <div className="invisible fixed left-1/2 top-[114px] w-[min(1000px,calc(100vw-2rem))] -translate-x-1/2 pt-2 opacity-0 transition-all duration-300 group-hover:visible group-hover:opacity-100">
+          <div className="max-h-[calc(100dvh-130px)] overflow-y-auto bg-white shadow-2xl border border-gray-100 rounded-b-lg">
             <div className="grid grid-cols-4 gap-8 p-8">
               {/* Col 1 */}
               <div>
@@ -150,7 +152,7 @@ export function DesktopNav({ tours, destinations }: DesktopNavProps) {
                   {safariStyles.map(s => (
                     <li key={s}>
                       <Link href={`/tours?category=${encodeURIComponent(s)}`} className="flex items-center gap-2 text-[13px] font-medium text-gray-700 hover:text-[#F67A05]">
-                        <span className="text-[#F67A05]">🏕️</span> {s}
+                        <Compass className="h-4 w-4 text-[#F67A05]" /> {s}
                       </Link>
                     </li>
                   ))}

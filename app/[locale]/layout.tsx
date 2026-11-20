@@ -3,6 +3,7 @@ import { MotionConfig } from "motion/react";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { FloatingWhatsApp } from "@/components/layout/floating-whatsapp";
+import { ScrollToTop } from "@/components/layout/scroll-to-top";
 import { getSiteSettings } from "@/lib/api/settings";
 import { getTours } from "@/lib/api/tours";
 import { getDestinations } from "@/lib/api/destinations";
@@ -88,6 +89,7 @@ export default async function RootLayout({
           {/* Every motion component honours the visitor's reduced-motion setting. */}
           <MotionConfig reducedMotion="user">
             <LocalBusinessSchema />
+            <ScrollToTop />
             <Header settings={settings} tours={tours} destinations={destinations} />
             <main className="pt-[88px] sm:pt-[100px] lg:pt-[114px]">{children}</main>
             <Footer settings={settings} />

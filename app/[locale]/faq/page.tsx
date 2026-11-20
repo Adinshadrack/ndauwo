@@ -81,7 +81,6 @@ export default async function FAQPage() {
 
       <ImageCta
         imageUrl={settings.hero_image_url || undefined}
-        eyebrow="Next step"
         title="Put the question to a planner."
         description="Deposits, group sizes, lodges, the driving days — ask before you book anything. Nothing is paid online, so a conversation costs you nothing."
         href="/contact"

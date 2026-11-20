@@ -300,7 +300,6 @@ export function BlogPostPage({
 
       <ImageCta
         imageUrl={ctaImage}
-        eyebrow="Next step"
         title="Plan the trip behind this story"
         description="Send the parks you want to see and the dates you can travel. We reply with a programme, the driving days and a final quotation."
         href="/contact"

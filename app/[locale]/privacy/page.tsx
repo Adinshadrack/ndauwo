@@ -119,7 +119,6 @@ export default async function PrivacyPage() {
 
       <ImageCta
         imageUrl={settings.hero_image_url || undefined}
-        eyebrow="Your details"
         title="One email is enough to change or remove them."
         description="We confirm what is on file, action the request, and tell you when it is done. Leaving the newsletter does not touch an enquiry you already have with us."
         href="/contact"

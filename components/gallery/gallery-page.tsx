@@ -53,7 +53,6 @@ export function GalleryPage({ images, ctaImage, phone }: GalleryPageProps) {
 
       <ImageCta
         imageUrl={ctaImage}
-        eyebrow="Next step"
         title="Stand in these photographs"
         description="Tell us which frames caught your eye and how many days you have. We set the route, the lodges and the driving days around them."
         href="/contact"

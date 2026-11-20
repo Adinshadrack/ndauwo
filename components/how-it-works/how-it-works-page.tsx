@@ -275,7 +275,6 @@ export function HowItWorksPage({
 
       <ImageCta
         imageUrl={heroImage}
-        eyebrow="Stage one"
         title="Start with the dates you have."
         description="Send them with the parks on your list. The reply is a programme and a quotation, not a booking."
         href="/contact"

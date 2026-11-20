@@ -209,7 +209,6 @@ export function BlogPage({ posts, heroImage, ctaImage, phone }: BlogPageProps) {
 
       <ImageCta
         imageUrl={ctaImage}
-        eyebrow="Next step"
         title="Plan a safari like this"
         description="Tell us which stories caught your eye and how many days you have. We set the route, the lodges and the driving days around them."
         href="/contact"

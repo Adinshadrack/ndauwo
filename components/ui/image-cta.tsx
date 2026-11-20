@@ -15,7 +15,6 @@ interface ImageCtaSecondary {
 
 interface ImageCtaProps {
   imageUrl?: string;
-  eyebrow?: string;
   title?: string;
   description?: string;
   href?: string;
@@ -52,7 +51,6 @@ const features: Array<{ icon: ReactNode; title: string; note: string }> = [
  */
 export function ImageCta({
   imageUrl,
-  eyebrow = "Here to help",
   title = "Not sure which safari?",
   description = "Tell us your dates and what you want to see. We reply with the programme that fits and a final quotation.",
   href = "/contact",
@@ -92,9 +90,8 @@ export function ImageCta({
 
           <div className="relative grid gap-9 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-12">
             <div>
-              <p className="type-badge text-white/60">{eyebrow}</p>
-
-              <h2 className="mt-3 max-w-[22ch] text-[1.6rem] font-extrabold leading-[1.1] tracking-[-0.03em] sm:text-[1.95rem]">
+              {/* The band leads with the headline: no label above it. */}
+              <h2 className="max-w-[22ch] text-[1.6rem] font-extrabold leading-[1.1] tracking-[-0.03em] sm:text-[1.95rem]">
                 {title}
               </h2>
 

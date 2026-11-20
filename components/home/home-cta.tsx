@@ -15,7 +15,6 @@ export function HomeCTA({ settings }: HomeCTAProps) {
   return (
     <ImageCta
       imageUrl={settings?.hero_image_url || "/images/home/cta-cheetah.jpg"}
-      eyebrow="Plan your safari"
       title="Tell us the trip you have in mind"
       description="Send your dates, how many of you are travelling and what you want to see. We reply with a programme, lodge options and a final quotation."
       href="/contact"

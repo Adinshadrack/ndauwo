@@ -310,7 +310,6 @@ export function AboutPage({ settings, testimonials, gallery }: AboutPageProps) {
 
       <ImageCta
         imageUrl={settings.hero_image_url || undefined}
-        eyebrow="Next step"
         title="Tell us about your safari."
         description="Send the dates you have and the parks you want to see. We reply with a programme, the driving days and a final quotation."
         href="/contact"

@@ -146,7 +146,6 @@ export default async function TermsPage() {
 
       <ImageCta
         imageUrl={settings.hero_image_url || undefined}
-        eyebrow="Before you confirm"
         title="Ask about the terms before anything is paid."
         description="Deposits, date changes, cancellations — put the question to the planner who would run your safari and keep the answer in writing."
         href="/contact"

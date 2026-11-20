@@ -3,10 +3,11 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ArrowLeft, ArrowRight, Check, Star } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Clock, Star } from "lucide-react";
 
 import { Link } from "@/i18n/navigation";
 import { CtaLink } from "@/components/ui/cta";
+import { Pill } from "@/components/ui/pill";
 import { temporaryImages } from "@/lib/constants/images";
 import type { SiteSettings, Tour } from "@/types/api";
 
@@ -162,7 +163,6 @@ export function Hero({ settings, tours }: HeroProps) {
     settings.hero_image_url?.trim() || active?.image || temporaryImages.hero;
 
   const discount = active ? discountInfo(active.tour) : null;
-  const finalPrice = active ? Number(active.tour.price) : NaN;
   const fade = reduceMotion ? 0 : 0.6;
 
   return (
@@ -289,7 +289,7 @@ export function Hero({ settings, tours }: HeroProps) {
                 type="button"
                 onClick={() => move(1)}
                 aria-label="Show next featured offer"
-                className="absolute -right-12 top-[38%] z-10 hidden h-11 w-11 items-center justify-center rounded-full bg-ink text-white shadow-[0_10px_30px_-8px_rgba(0,0,0,0.8)] transition-transform duration-300 hover:scale-105 lg:flex"
+                className="absolute -right-12 top-1/2 z-10 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white text-ink shadow-[0_10px_30px_-8px_rgba(0,0,0,0.8)] transition-colors duration-300 hover:bg-ember hover:text-white lg:flex"
               >
                 <ArrowRight className="h-4 w-4" strokeWidth={2} />
               </button>
@@ -304,100 +304,100 @@ export function Hero({ settings, tours }: HeroProps) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: fade, ease: [0.22, 1, 0.36, 1] }}
-                className="bg-pine shadow-[0_30px_60px_-28px_rgba(0,0,0,0.75)]"
+                className="overflow-hidden rounded-[20px] bg-white text-ink shadow-[0_30px_60px_-26px_rgba(0,0,0,0.8)]"
               >
-                {/* Tour image + badges */}
-                <div className="relative h-48 w-full overflow-hidden bg-forest/70 sm:h-52 lg:h-[clamp(7rem,20vh,13rem)]">
-                  <Image
-                    src={active.image}
-                    alt={active.tour.name}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 360px"
-                    className="object-cover object-center"
-                  />
+                {/* Same card language as the safari cards further down the
+                    page: photo, glass pills, ember eyebrow, price block with a
+                    round action disc. The card carries every offer detail. */}
+                <Link
+                  href={`/tours/${active.tour.slug}`}
+                  aria-label={`${active.tour.name} — view offer`}
+                  className="group/offer flex flex-col"
+                >
+                  {/* Tour image + pills */}
+                  <div className="relative aspect-[3/2] w-full overflow-hidden bg-sand">
+                    <Image
+                      src={active.image}
+                      alt={active.tour.name}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 360px"
+                      className="object-cover object-center transition-transform duration-700 group-hover/offer:scale-105"
+                    />
 
-                  <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/55 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/35 to-transparent" />
 
-                  <div className="absolute bottom-3 left-3 flex flex-wrap items-center gap-1.5">
-                    {durationLabel(active.tour) && (
-                      <span className="type-badge bg-black/40 px-2.5 py-1 text-white backdrop-blur-[2px]">
-                        {durationLabel(active.tour)}
-                      </span>
-                    )}
-
-                    {active.tour.category?.trim() && (
-                      <span className="type-badge bg-ember px-2.5 py-1 text-white">
-                        {active.tour.category}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Discount ribbon */}
-                {active.tour.discount_tag?.trim() && (
-                  <p className="bg-clay px-4 py-2 text-center text-[10px] font-bold uppercase leading-[1.45] tracking-[0.1em] text-white">
-                    {active.tour.discount_tag}
-                  </p>
-                )}
-
-                {/* Offer details */}
-                <div className="px-4 pb-4 pt-3.5">
-                  <h2 className="type-card-title line-clamp-2 text-white">
-                    {active.tour.name}
-                  </h2>
-
-                  <p className="mt-2 text-[11px] leading-[1.5] text-white/65">
-                    {active.tour.destination?.name?.trim() || "Tanzania"}
-                  </p>
-
-                  <div className="mt-3 bg-stone px-3 py-2.5">
-                    {discount && (
+                    <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-2">
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="font-tour text-[10.5px] font-semibold text-black/45 line-through">
-                          {formatAmount(active.tour.currency, discount.original)}
-                        </span>
+                        {durationLabel(active.tour) && (
+                          <Pill tone="glass">
+                            <Clock className="h-3 w-3" strokeWidth={2} aria-hidden="true" />
+                            {durationLabel(active.tour)}
+                          </Pill>
+                        )}
 
-                        <span className="bg-clay px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.06em] text-white">
-                          Save {discount.percentage}%
-                        </span>
-
-                        {Math.abs(discount.discounted - finalPrice) >= 1 && (
-                          <span className="font-tour text-[10.5px] font-bold text-ink">
-                            ({formatAmount(active.tour.currency, discount.discounted)})
-                          </span>
+                        {active.tour.category?.trim() && (
+                          <Pill tone="glass">{active.tour.category}</Pill>
                         )}
                       </div>
-                    )}
 
-                    <div className="mt-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                      <span className="type-price text-ink">
-                        {formatAmount(active.tour.currency, active.tour.price)}
-                      </span>
-
-                      <span className="text-[11px] font-medium text-black/55">
-                        Per Person
-                      </span>
+                      {discount && (
+                        <span className="shrink-0 rounded-full bg-clay px-2.5 py-1 text-[9.5px] font-extrabold uppercase leading-none tracking-[0.08em] text-white">
+                          {discount.percentage}% off
+                        </span>
+                      )}
                     </div>
                   </div>
 
-                  {active.tour.price_note?.trim() && (
-                    <p className="mt-2 line-clamp-2 text-[9.5px] leading-[1.5] text-white/50">
-                      {active.tour.price_note}
+                  {/* Discount ribbon */}
+                  {active.tour.discount_tag?.trim() && (
+                    <p className="bg-clay px-5 py-2 text-[10px] font-bold uppercase leading-[1.45] tracking-[0.1em] text-white">
+                      {active.tour.discount_tag}
                     </p>
                   )}
 
-                  <Link
-                    href={`/tours/${active.tour.slug}`}
-                    className="group mt-3 flex w-full items-center justify-center gap-2 bg-ember py-3 text-[13px] font-bold text-white transition-colors duration-300 hover:bg-clay"
-                  >
-                    View Offer
+                  {/* Offer details */}
+                  <div className="flex flex-1 flex-col px-5 pb-5 pt-4">
+                    <p className="type-badge text-ember">
+                      {active.tour.destination?.name?.trim() || "Tanzania"}
+                    </p>
 
-                    <ArrowRight
-                      className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
-                      strokeWidth={2.25}
-                    />
-                  </Link>
-                </div>
+                    <h2 className="mt-2 line-clamp-2 text-[1.0625rem] font-extrabold leading-[1.28] tracking-[-0.025em] text-ink">
+                      {active.tour.name}
+                    </h2>
+
+                    {active.tour.price_note?.trim() && (
+                      <p className="mt-1.5 line-clamp-2 text-[0.72rem] leading-[1.5] text-ink-soft">
+                        {active.tour.price_note}
+                      </p>
+                    )}
+
+                    <div className="mt-auto flex items-end justify-between gap-3 border-t border-ink/10 pt-4">
+                      <div className="min-w-0">
+                        {discount && (
+                          <p className="font-tour text-[10.5px] font-semibold leading-none text-ink-soft line-through">
+                            {formatAmount(active.tour.currency, discount.original)}
+                          </p>
+                        )}
+
+                        <p className="type-price mt-1 text-[1.25rem] text-ink">
+                          {formatAmount(active.tour.currency, active.tour.price)}
+                        </p>
+
+                        <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-ink-soft">
+                          per person
+                        </p>
+                      </div>
+
+                      <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-forest-900 text-white transition-colors duration-300 group-hover/offer:bg-ember">
+                        <ArrowRight
+                          className="h-4 w-4 transition-transform duration-300 group-hover/offer:translate-x-0.5"
+                          strokeWidth={2.2}
+                          aria-hidden="true"
+                        />
+                      </span>
+                    </div>
+                  </div>
+                </Link>
               </motion.article>
             </AnimatePresence>
           </div>

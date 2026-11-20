@@ -186,7 +186,6 @@ export default async function TourDetailsPage({
       */}
       <ImageCta
         imageUrl={settings.hero_image_url}
-        eyebrow="Next step"
         title="Plan this safari"
         description={`Send your travel dates for ${tour.name} and we reply with availability, accommodation options and a final quotation.`}
         href={enquiryHref}
