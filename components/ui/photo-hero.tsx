@@ -188,9 +188,17 @@ export function PhotoHero({
               )}
             >
               {meta.map((item, index) => (
-                <span key={item} className="flex items-center gap-x-5">
+                <span
+                  key={item}
+                  className="flex items-center gap-x-4 sm:gap-x-5"
+                >
+                  {/* The rule is dropped on phones, where the row wraps and
+                      would otherwise start a line with a separator. */}
                   {index > 0 && (
-                    <span aria-hidden="true" className="h-3 w-px bg-white/20" />
+                    <span
+                      aria-hidden="true"
+                      className="hidden h-3 w-px bg-white/20 sm:block"
+                    />
                   )}
 
                   <span className="type-meta uppercase text-white/45">{item}</span>

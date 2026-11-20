@@ -1,316 +1,306 @@
 import Image from "next/image";
-import { Check, Compass, Heart, Leaf, ShieldCheck } from "lucide-react";
+import {
+  ArrowRight,
+  Binoculars,
+  CalendarDays,
+  Luggage,
+  Route,
+  type LucideIcon,
+} from "lucide-react";
 
+import { Link } from "@/i18n/navigation";
 import { Reveal } from "@/components/motion/reveal";
 import { ImageCta } from "@/components/ui/image-cta";
 import { PhotoHero } from "@/components/ui/photo-hero";
-import type { SiteSettings, Testimonial } from "@/types/api";
+import { TestimonialCard } from "@/components/ui/testimonial-card";
+import type { GalleryImage, SiteSettings, Testimonial } from "@/types/api";
 
 interface AboutPageProps {
   settings: SiteSettings;
   testimonials: Testimonial[];
-  /** Hero frame, kept different from the story photograph below it. */
-  backdropImage?: string;
+  /** Site photographs; the page picks three different frames from it. */
+  gallery: GalleryImage[];
 }
 
-const values = [
+interface Service {
+  icon: LucideIcon;
+  title: string;
+  body: string;
+}
+
+/** The four things the team owns, from first email to the last drop-off. */
+const services: readonly Service[] = [
   {
-    icon: Heart,
-    title: "Passion",
-    text: "We believe the best journeys are created by people who genuinely love Africa and the experiences they share.",
+    icon: Route,
+    title: "Route, lodges and budget",
+    body: "We build the day-by-day programme around your dates, the parks you want and what you can spend, then quote it per person.",
   },
   {
-    icon: Compass,
-    title: "Local Knowledge",
-    text: "Our understanding of Tanzania helps us create journeys that feel authentic, personal and thoughtfully planned.",
+    icon: CalendarDays,
+    title: "Dates and interests",
+    body: "Wildlife, walking, photography or the migration: the season and the parks follow from what you actually want to see.",
   },
   {
-    icon: Leaf,
-    title: "Responsible Travel",
-    text: "We value the landscapes, wildlife and communities that make Tanzania special.",
+    icon: Luggage,
+    title: "Pick-up and drop-off",
+    body: "Hotel collection in Arusha, the vehicle for the whole safari, and the drop-off at the end of the programme.",
   },
   {
-    icon: ShieldCheck,
-    title: "Trust",
-    text: "From your first inquiry to the end of your journey, we focus on clear communication and dependable service.",
+    icon: Binoculars,
+    title: "Guiding in the parks",
+    body: "Our own guides drive and read the parks, and adjust each day around what the wildlife is doing.",
   },
-];
+] as const;
 
 const promises = [
-  "Personalized journeys",
-  "Experienced local guides",
-  "Authentic experiences",
-  "Thoughtful planning",
-];
+  "Tanzania safaris",
+  "Trip planning",
+  "Local guiding",
+] as const;
 
-const reasons = [
-  {
-    title: "Personal attention",
-    text: "Your journey starts with understanding your interests and expectations.",
-  },
-  {
-    title: "Local expertise",
-    text: "Travel with people who understand the destinations you're visiting.",
-  },
-  {
-    title: "Flexible experiences",
-    text: "Your safari can be shaped around your priorities rather than a rigid template.",
-  },
-  {
-    title: "Memorable moments",
-    text: "We aim to create experiences you'll still be talking about years later.",
-  },
-];
+/** A gallery frame chosen by what it shows, so captions stay truthful. */
+function pickPhoto(
+  gallery: GalleryImage[],
+  keywords: string[],
+  fallback: GalleryImage | undefined,
+) {
+  const match = gallery.find((photo) => {
+    const haystack = `${photo.title} ${photo.alt_text}`.toLowerCase();
 
-export function AboutPage({
-  settings,
-  testimonials,
-  backdropImage,
-}: AboutPageProps) {
-  const image =
-    settings.hero_image_url ||
-    "https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=1800&q=85";
+    return keywords.some((keyword) => haystack.includes(keyword));
+  });
+
+  return match ?? fallback;
+}
+
+/**
+ * The About page: an editorial opening, the story beside a photograph, the
+ * work the team owns in one rounded panel, and what guests wrote about it.
+ * Everything printed here is a stored field or a fixed statement of service.
+ */
+export function AboutPage({ settings, testimonials, gallery }: AboutPageProps) {
+  const fallbackPhoto = gallery[0];
+
+  const backdropImage =
+    settings.hero_image_url || fallbackPhoto?.image_url || undefined;
+
+  const storyPhoto = pickPhoto(
+    gallery,
+    ["tourists", "watching"],
+    fallbackPhoto,
+  );
+
+  const panelPhoto = pickPhoto(gallery, ["elephant"], fallbackPhoto);
+
+  const reviews = testimonials.slice(0, 3);
+
+  const meta = [
+    testimonials.length
+      ? `${testimonials.length} guest ${
+          testimonials.length === 1 ? "review" : "reviews"
+        }`
+      : null,
+    "Arusha-based team",
+    "No online payment",
+  ].filter((item): item is string => Boolean(item));
 
   return (
     <main className="bg-canvas">
       <PhotoHero
         align="center"
         eyebrow="About Ndauwo Safaris"
-        title={
-          <>
-            We don&apos;t just take you to Africa.{" "}
-            <span className="mt-2 block italic text-ember">
-              We help you experience it.
-            </span>
-          </>
-        }
-        description="The story, the values and the people who plan, drive and guide every Ndauwo safari."
-        backdropImage={backdropImage ?? image}
-        meta={[
-          ...(testimonials.length
-            ? [`${testimonials.length} guest reviews`]
-            : []),
-          "Arusha-based team",
-        ]}
+        title="A small Arusha team that runs its own safaris."
+        description="We plan the route, drive the vehicle and guide the days ourselves, in the parks we grew up travelling through."
+        backdropImage={backdropImage}
+        meta={meta}
       />
 
-      {/* Our story */}
-      <section className="bg-canvas section-pad">
-        <div className="container-page grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <Reveal className="image-zoom relative aspect-[4/5] overflow-hidden bg-sand">
-            <Image
-              src={image}
-              alt="Ndauwo Safaris guides in the field"
-              fill
-              sizes="(max-width: 1024px) 100vw, 45vw"
-              className="object-cover"
-            />
-
-            <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/30 to-transparent" />
-          </Reveal>
-
-          <Reveal className="lg:pl-6" delay={0.1}>
-            <p className="type-eyebrow text-gold">Our story</p>
-
-            <h2 className="type-display mt-5 max-w-2xl text-ink">
-              Built around a love for Tanzania.
-            </h2>
-
-            <div className="type-body mt-8 max-w-2xl space-y-5 text-ink/65">
-              <p>
-                {settings.about ||
-                  "Ndauwo Safaris is dedicated to creating memorable journeys through Tanzania, combining incredible wildlife, beautiful landscapes and genuine African hospitality."}
-              </p>
-
-              <p>
-                We believe a safari should be more than checking destinations off
-                a list. It should give you time to slow down, discover, connect
-                and create memories that stay with you long after you return
-                home.
-              </p>
-            </div>
-
-            <div className="mt-9 border-t border-ink/10">
-              {promises.map((item) => (
-                <div
-                  key={item}
-                  className="flex items-center gap-4 border-b border-ink/10 py-4"
-                >
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center border border-ember text-ember">
-                    <Check className="h-3 w-3" aria-hidden="true" />
-                  </span>
-
-                  <span className="text-sm text-ink">{item}</span>
-                </div>
-              ))}
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* Mission / vision */}
-      <section className="bg-sand">
-        <div className="container-page section-pad">
-          <Reveal className="grid border-y border-ink/15 md:grid-cols-2">
-            <div className="border-b border-ink/15 py-10 md:border-b-0 md:border-r md:pr-12 lg:py-14">
-              <p className="type-eyebrow text-gold">Our mission</p>
-
-              <h2 className="type-display mt-5 max-w-xl text-ink">
-                Create journeys people remember.
-              </h2>
-
-              <p className="type-body-sm mt-5 max-w-xl text-ink/65">
-                To create meaningful safari experiences that connect travelers
-                with Tanzania&apos;s wildlife, landscapes, culture and people.
-              </p>
-            </div>
-
-            <div className="py-10 md:pl-12 lg:py-14">
-              <p className="type-eyebrow text-gold">Our vision</p>
-
-              <h2 className="type-display mt-5 max-w-xl text-ink">
-                Tanzania experienced authentically.
-              </h2>
-
-              <p className="type-body-sm mt-5 max-w-xl text-ink/65">
-                To be a trusted safari partner for travelers seeking authentic,
-                responsible and unforgettable experiences in Tanzania.
-              </p>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* Values */}
-      <section className="bg-canvas section-pad">
+      {/* Our story — the photograph carries one column, the words the other. */}
+      <section className="bg-canvas pb-14 pt-16 lg:pb-20 lg:pt-20">
         <div className="container-page">
-          <div className="max-w-2xl">
-            <p className="type-eyebrow text-gold">What we stand for</p>
+          <Reveal className="max-w-3xl">
+            <h2 className="type-script text-ink">Our story</h2>
 
-            <h2 className="type-display mt-5 text-ink">
-              The values behind every journey.
-            </h2>
-          </div>
-
-          <Reveal className="mt-12 grid border-t border-ink/10 sm:grid-cols-2 lg:grid-cols-4">
-            {values.map((value, index) => {
-              const Icon = value.icon;
-
-              return (
-                <div
-                  key={value.title}
-                  className={`py-8 ${
-                    index % 2 === 0
-                      ? "sm:pr-8"
-                      : "sm:border-l sm:border-ink/10 sm:pl-8"
-                  } ${
-                    index > 1 ? "lg:border-t-0" : ""
-                  } lg:border-l lg:border-ink/10 lg:px-8 lg:first:border-l-0 lg:first:pl-0 lg:last:pr-0`}
-                >
-                  <div className="flex items-start justify-between">
-                    <span className="flex h-10 w-10 items-center justify-center border border-ink/15">
-                      <Icon className="h-4 w-4 text-gold" aria-hidden="true" />
-                    </span>
-
-                    <span className="type-badge text-ink/30">
-                      0{index + 1}
-                    </span>
-                  </div>
-
-                  <h3 className="type-card-title mt-7 text-ink">{value.title}</h3>
-
-                  <p className="type-body-sm mt-3 text-ink/60">{value.text}</p>
-                </div>
-              );
-            })}
-          </Reveal>
-        </div>
-      </section>
-
-      {/* Why Ndauwo */}
-      <section className="bg-forest-900 text-white">
-        <div className="container-page section-pad grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <Reveal>
-            <p className="type-eyebrow text-gold">Why Ndauwo</p>
-
-            <h2 className="type-display mt-5 max-w-2xl text-white">
-              Your journey deserves more than a standard itinerary.
-            </h2>
-
-            <p className="type-body mt-7 max-w-xl text-white/60">
-              We focus on understanding what you want from your safari and
-              creating an experience around it.
+            <p className="type-display mt-3 text-ink">
+              A safari should give you time to slow down and look properly.
             </p>
           </Reveal>
 
-          <Reveal className="border-t border-white/15" delay={0.1}>
-            {reasons.map((item, index) => (
-              <div key={item.title} className="border-b border-white/10 py-6">
-                <div className="grid grid-cols-[2.5rem_1fr] gap-4">
-                  <span className="type-badge text-ember">0{index + 1}</span>
-
-                  <div>
-                    <h3 className="type-card-title text-white">{item.title}</h3>
-
-                    <p className="type-body-sm mt-2 max-w-xl text-white/50">
-                      {item.text}
-                    </p>
+          <div className="mt-10 grid gap-10 lg:mt-12 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14">
+            {storyPhoto?.image_url && (
+              <Reveal>
+                <figure className="image-zoom overflow-hidden rounded-[20px] bg-sand">
+                  <div className="relative aspect-[4/3] lg:aspect-[16/11]">
+                    <Image
+                      src={storyPhoto.image_url}
+                      alt={storyPhoto.alt_text || storyPhoto.title || ""}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 55vw"
+                      className="object-cover object-center"
+                    />
                   </div>
-                </div>
+                </figure>
+              </Reveal>
+            )}
+
+            <Reveal className="lg:pt-2" delay={0.1}>
+              <p className="type-eyebrow text-gold">Tanzania safaris</p>
+
+              <div className="type-body mt-4 max-w-[46ch] space-y-4 text-ink-muted">
+                <p>
+                  Ndauwo Safaris plans journeys through Tanzania that combine
+                  wildlife, landscapes and genuine hospitality. We would rather
+                  ask two more questions than send an itinerary that fits nobody.
+                </p>
+
+                <p>
+                  We believe a safari should be more than checking destinations
+                  off a list: it should give you time to slow down, discover and
+                  connect.
+                </p>
               </div>
-            ))}
+
+              <ul className="mt-6 flex flex-wrap gap-2">
+                {promises.map((promise) => (
+                  <li
+                    key={promise}
+                    className="rounded-full border border-ink/12 bg-white px-3.5 py-1.5 text-[0.72rem] font-semibold text-ink-muted"
+                  >
+                    {promise}
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href="/how-it-works"
+                className="type-meta group mt-7 inline-flex items-center gap-2.5 uppercase text-ink transition-colors hover:text-clay"
+              >
+                How a safari comes together
+                <ArrowRight
+                  className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1"
+                  strokeWidth={2.2}
+                  aria-hidden="true"
+                />
+              </Link>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* What we take care of — the rounded panel from the reference. */}
+      <section className="bg-canvas pb-16 lg:pb-20">
+        <div className="container-page">
+          <Reveal className="rounded-[28px] bg-sand px-6 py-9 sm:px-9 sm:py-11 lg:rounded-[32px] lg:px-14 lg:py-14">
+            <div className="grid gap-10 lg:grid-cols-[0.86fr_1.14fr] lg:gap-14">
+              <div>
+                <h2 className="type-script text-ink">What we take care of</h2>
+
+                <p className="type-body-sm mt-4 max-w-[34ch] text-ink-muted">
+                  Four things sit on our side of the table, from the first email
+                  to the drive back to the airport.
+                </p>
+
+                {panelPhoto?.image_url && (
+                  <figure className="mt-7 overflow-hidden rounded-2xl">
+                    <div className="relative aspect-[4/3]">
+                      <Image
+                        src={panelPhoto.image_url}
+                        alt={panelPhoto.alt_text || panelPhoto.title || ""}
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 380px"
+                        className="object-cover object-center"
+                      />
+                    </div>
+                  </figure>
+                )}
+              </div>
+
+              <div className="grid gap-3.5 sm:grid-cols-2">
+                {services.map((service, index) => {
+                  const Icon = service.icon;
+                  const feature = index === 0;
+
+                  return (
+                    <article
+                      key={service.title}
+                      className={
+                        feature
+                          ? "flex h-full flex-col rounded-[18px] bg-forest-900 px-6 py-6 text-white"
+                          : "flex h-full flex-col rounded-[18px] bg-white px-6 py-6"
+                      }
+                    >
+                      <span
+                        className={
+                          feature
+                            ? "flex h-[38px] w-[38px] items-center justify-center rounded-[11px] bg-white/15 text-white"
+                            : "flex h-[38px] w-[38px] items-center justify-center rounded-[11px] bg-ink/5 text-forest-800"
+                        }
+                      >
+                        <Icon
+                          className="h-[18px] w-[18px]"
+                          strokeWidth={1.9}
+                          aria-hidden="true"
+                        />
+                      </span>
+
+                      <h3
+                        className={
+                          feature
+                            ? "mt-4 text-[1rem] font-extrabold leading-snug tracking-[-0.01em] text-white"
+                            : "mt-4 text-[1rem] font-extrabold leading-snug tracking-[-0.01em] text-ink"
+                        }
+                      >
+                        {service.title}
+                      </h3>
+
+                      <p
+                        className={
+                          feature
+                            ? "mt-2 text-[0.8125rem] leading-[1.65] text-white/72"
+                            : "mt-2 text-[0.8125rem] leading-[1.65] text-ink-muted"
+                        }
+                      >
+                        {service.body}
+                      </p>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
           </Reveal>
         </div>
       </section>
 
-      {/* Guest quotes */}
-      {testimonials.length > 0 && (
-        <section className="bg-canvas section-pad">
+      {reviews.length > 0 && (
+        <section className="bg-sand-muted section-pad">
           <div className="container-page">
-            <div className="flex flex-col justify-between gap-5 border-b border-ink/10 pb-6 md:flex-row md:items-end">
-              <div>
-                <p className="type-eyebrow text-gold">Guest experiences</p>
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <h2 className="type-script text-ink">What guests say</h2>
 
-                <h2 className="type-display mt-5 text-ink">
-                  What our guests say.
-                </h2>
-              </div>
-
-              <span className="type-meta uppercase text-ink/35">
-                From the road
-              </span>
+              <Link
+                href="/reviews"
+                className="type-meta group inline-flex items-center gap-2.5 pb-1 uppercase text-ink-muted transition-colors hover:text-clay"
+              >
+                All reviews
+                <ArrowRight
+                  className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1"
+                  strokeWidth={2.2}
+                  aria-hidden="true"
+                />
+              </Link>
             </div>
 
-            <div className="mt-10 grid border-t border-ink/10 md:grid-cols-3">
-              {testimonials.slice(0, 3).map((testimonial, index) => (
+            <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {reviews.map((review, index) => (
                 <Reveal
-                  as="article"
-                  key={testimonial.id}
-                  delay={index * 0.08}
-                  className={`py-8 md:px-7 ${
-                    index > 0
-                      ? "border-t border-ink/10 md:border-l md:border-t-0"
-                      : ""
-                  }`}
+                  key={review.id}
+                  className="h-full"
+                  delay={index * 0.07}
                 >
-                  <div
-                    className="text-sm tracking-[0.2em] text-ember"
-                    aria-label={`${testimonial.rating} out of 5 stars`}
-                  >
-                    {"★".repeat(testimonial.rating)}
-                  </div>
-
-                  <blockquote className="mt-6 font-[family-name:var(--font-accent)] text-2xl leading-[1.35] text-ink">
-                    &ldquo;{testimonial.content}&rdquo;
-                  </blockquote>
-
-                  <div className="mt-8 flex items-center gap-3">
-                    <span aria-hidden="true" className="h-px w-6 bg-ink/20" />
-
-                    <p className="type-meta uppercase text-ink/45">
-                      {testimonial.name}
-                    </p>
-                  </div>
+                  <TestimonialCard
+                    testimonial={review}
+                    className="h-full border border-ink/10 shadow-card"
+                  />
                 </Reveal>
               ))}
             </div>
@@ -319,12 +309,12 @@ export function AboutPage({
       )}
 
       <ImageCta
-        imageUrl={image}
-        eyebrow="Start your story"
-        title="Let's create your Tanzania story."
-        description="Tell us what kind of adventure you're imagining and we'll help you take the first step."
+        imageUrl={settings.hero_image_url || undefined}
+        eyebrow="Next step"
+        title="Tell us about your safari."
+        description="Send the dates you have and the parks you want to see. We reply with a programme, the driving days and a final quotation."
         href="/contact"
-        ctaLabel="Start planning"
+        ctaLabel="Send an enquiry"
         secondary={{ label: "Browse safaris", href: "/tours" }}
         phone={settings.phone || undefined}
       />

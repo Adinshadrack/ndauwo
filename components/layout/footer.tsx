@@ -15,6 +15,7 @@ const exploreLinks = [
 
 const companyLinks = [
   { label: "About Us", href: "/about" },
+  { label: "How It Works", href: "/how-it-works" },
   { label: "Contact Us", href: "/contact" },
   { label: "FAQs", href: "/faq" },
   { label: "Terms and Conditions", href: "/terms" },

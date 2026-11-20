@@ -24,6 +24,8 @@ const navigation = [
   { label: "Safaris", href: "/tours" },
   { label: "Gallery", href: "/gallery" },
   { label: "Blog", href: "/blog" },
+  { label: "About us", href: "/about" },
+  { label: "How it works", href: "/how-it-works" },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -73,9 +75,11 @@ export function MobileNav({ settings, onSearchClick }: MobileNavProps) {
   return (
     <>
       {/* Trigger Button */}
+      {/* Below xl the same links live here: seven desktop items plus two mega
+          menus do not fit the bar at 1024. */}
       <button
         onClick={() => setOpen(true)}
-        className="inline-flex h-10 w-10 items-center justify-center rounded-md text-[#11110F] transition-colors hover:bg-gray-100 lg:hidden"
+        className="inline-flex h-10 w-10 items-center justify-center rounded-md text-[#11110F] transition-colors hover:bg-gray-100 xl:hidden"
         aria-label="Open navigation"
       >
         <Menu className="h-6 w-6" strokeWidth={1.5} />
@@ -89,7 +93,7 @@ export function MobileNav({ settings, onSearchClick }: MobileNavProps) {
             animate={{ y: 0 }}
             exit={{ y: "-100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed inset-0 z-[100] flex h-[100dvh] w-full flex-col bg-[#F7F7F7] px-6 py-5 lg:hidden"
+            className="fixed inset-0 z-[100] flex h-[100dvh] w-full flex-col bg-[#F7F7F7] px-6 py-5 xl:hidden"
           >
             {/* Top Bar */}
             <div className="flex items-center justify-between border-b border-gray-200 pb-4">

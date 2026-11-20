@@ -23,7 +23,7 @@ export function DesktopNav({ tours, destinations }: DesktopNavProps) {
   };
 
   return (
-    <nav className="hidden items-center gap-8 lg:flex">
+    <nav className="hidden items-center gap-8 xl:flex">
       {/* 1. HOME */}
       <div className="group relative flex h-full items-center">
         <Link
@@ -210,6 +210,22 @@ export function DesktopNav({ tours, destinations }: DesktopNavProps) {
           <span>Blog</span>
         </Link>
         <span className={`absolute bottom-4 left-0 h-[2px] bg-[#F67A05] transition-all duration-300 ${pathname.startsWith("/blog") ? "w-full" : "w-0 group-hover:w-full"}`} />
+      </div>
+
+      {/* 6. ABOUT US */}
+      <div className="group relative flex h-full items-center">
+        <Link href="/about" className={`flex items-center gap-1 py-6 text-[14px] font-semibold transition-colors ${pathname.startsWith("/about") ? "text-[#0B3D1F]" : "text-[#11110F] hover:text-[#0B3D1F]"}`}>
+          <span>About us</span>
+        </Link>
+        <span className={`absolute bottom-4 left-0 h-[2px] bg-[#F67A05] transition-all duration-300 ${pathname.startsWith("/about") ? "w-full" : "w-0 group-hover:w-full"}`} />
+      </div>
+
+      {/* 7. HOW IT WORKS */}
+      <div className="group relative flex h-full items-center">
+        <Link href="/how-it-works" className={`flex items-center gap-1 py-6 text-[14px] font-semibold transition-colors ${pathname.startsWith("/how-it-works") ? "text-[#0B3D1F]" : "text-[#11110F] hover:text-[#0B3D1F]"}`}>
+          <span>How it works</span>
+        </Link>
+        <span className={`absolute bottom-4 left-0 h-[2px] bg-[#F67A05] transition-all duration-300 ${pathname.startsWith("/how-it-works") ? "w-full" : "w-0 group-hover:w-full"}`} />
       </div>
     </nav>
   );
